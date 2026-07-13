@@ -9,10 +9,12 @@ namespace IT123P_FINAL_PROJECT.ViewModels
     public partial class PortionViewModel : ObservableObject
     {
         private readonly IDatabaseService _databaseService;
+        private readonly IApiService _apiService;
 
-        public PortionViewModel(IDatabaseService databaseService)
+        public PortionViewModel(IDatabaseService databaseService, IApiService apiService)
         {
             _databaseService = databaseService;
+            _apiService = apiService;
             _grams = 150; // Default portion
         }
 
@@ -54,12 +56,13 @@ namespace IT123P_FINAL_PROJECT.ViewModels
 
         partial void OnCandidateChanged(FoodCandidate? value)
         {
-            UpdateNutrition();
+            // Use fire-and-forget; real nutrition will be fetched async from backend
+            _ = RefreshNutritionAsync();
         }
 
         partial void OnGramsChanged(double value)
         {
-            UpdateNutrition();
+            _ = RefreshNutritionAsync();
         }
 
         [RelayCommand]
@@ -80,6 +83,33 @@ namespace IT123P_FINAL_PROJECT.ViewModels
             UpdateNutrition();
         }
 
+        /// <summary>
+        /// Tries to get real scaled nutrition from the backend.
+        /// Falls back to local per-100g multiplication when backend is unavailable
+        /// or when FdcId is missing (e.g. camera mock candidates).
+        /// </summary>
+        private async Task RefreshNutritionAsync()
+        {
+            if (Candidate == null) return;
+
+            if (!string.IsNullOrWhiteSpace(Candidate.FdcId))
+            {
+                var result = await _apiService.GetNutritionAsync(Candidate.FdcId, Grams);
+                if (result.HasValue)
+                {
+                    Calories = result.Value.Calories;
+                    Protein = result.Value.ProteinG;
+                    Carbs = result.Value.CarbsG;
+                    Fat = result.Value.FatG;
+                    UpdateBudgetIndicator();
+                    return;
+                }
+            }
+
+            // Offline / no FdcId — scale local values
+            UpdateNutrition();
+        }
+
         private void UpdateNutrition()
         {
             if (Candidate == null) return;
@@ -91,6 +121,11 @@ namespace IT123P_FINAL_PROJECT.ViewModels
             Carbs = Candidate.CarbsPer100g * factor;
             Fat = Candidate.FatPer100g * factor;
 
+            UpdateBudgetIndicator();
+        }
+
+        private void UpdateBudgetIndicator()
+        {
             double projectedTotal = _todayLoggedCalories + Calories;
             double remaining = _dailyLimit - projectedTotal;
 

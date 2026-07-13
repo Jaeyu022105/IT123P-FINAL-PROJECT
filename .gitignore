@@ -69,3 +69,9 @@ Desktop.ini
 
 ## Logs
 *.log
+
+## Backend secrets — never commit the Development appsettings (contains API keys)
+FoodLens.Api/appsettings.Development.json
+
+## EF Core migrations snapshot temp
+FoodLens.Api/obj/

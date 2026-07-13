@@ -23,6 +23,14 @@ namespace IT123P_FINAL_PROJECT
             // Register services
             builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
 
+            // Backend API service — points to local dev backend during development
+            builder.Services.AddHttpClient<IApiService, ApiService>(client =>
+            {
+                // Change this URL when deploying to a real server
+                client.BaseAddress = new Uri("https://localhost:5001/");
+                client.Timeout = TimeSpan.FromSeconds(15);
+            });
+
             // Register ViewModels
             builder.Services.AddTransient<DietSummaryViewModel>();
             builder.Services.AddTransient<CameraViewModel>();

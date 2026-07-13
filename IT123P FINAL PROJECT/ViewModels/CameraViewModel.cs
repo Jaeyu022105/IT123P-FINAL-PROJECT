@@ -2,14 +2,18 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using IT123P_FINAL_PROJECT.Models;
+using IT123P_FINAL_PROJECT.Services;
 using IT123P_FINAL_PROJECT.Views;
 
 namespace IT123P_FINAL_PROJECT.ViewModels
 {
     public partial class CameraViewModel : ObservableObject
     {
-        public CameraViewModel()
+        private readonly IApiService _apiService;
+
+        public CameraViewModel(IApiService apiService)
         {
+            _apiService = apiService;
             Candidates = new ObservableCollection<FoodCandidate>();
             StatusMessage = "Ready to analyze food";
         }
@@ -148,36 +152,38 @@ namespace IT123P_FINAL_PROJECT.ViewModels
 
             IsBusy = true;
             ShowCandidates = false;
-            StatusMessage = $"Searching USDA database for '{SearchQuery}'...";
-            await Task.Delay(1000);
+            StatusMessage = $"Searching USDA database for \u2018{SearchQuery}\u2019...";
 
             Candidates.Clear();
-            // Generate mock results based on the search query
-            string query = SearchQuery.Trim();
-            Candidates.Add(new FoodCandidate
-            {
-                Name = $"{query} (Standard)",
-                Confidence = 100.0,
-                UsdaFoodId = "USDA_MANUAL_1",
-                CaloriesPer100g = 120,
-                ProteinPer100g = 4,
-                CarbsPer100g = 22,
-                FatPer100g = 2
-            });
-            Candidates.Add(new FoodCandidate
-            {
-                Name = $"{query} (Low-Fat/Light)",
-                Confidence = 100.0,
-                UsdaFoodId = "USDA_MANUAL_2",
-                CaloriesPer100g = 80,
-                ProteinPer100g = 3,
-                CarbsPer100g = 15,
-                FatPer100g = 0.5
-            });
+            var results = await _apiService.SearchFoodsAsync(SearchQuery.Trim());
 
-            ShowCandidates = true;
+            if (results.Count > 0)
+            {
+                foreach (var r in results)
+                    Candidates.Add(r);
+
+                ShowCandidates = true;
+                StatusMessage = $"{results.Count} result(s) found for \u2018{SearchQuery}\u2019:";
+            }
+            else
+            {
+                // Offline / backend unavailable fallback
+                StatusMessage = "Nutrition service unavailable. Showing local fallback.";
+                string query = SearchQuery.Trim();
+                Candidates.Add(new FoodCandidate
+                {
+                    Name = $"{query} (estimated)",
+                    Confidence = 100.0,
+                    FdcId = string.Empty,
+                    CaloriesPer100g = 120,
+                    ProteinPer100g = 4,
+                    CarbsPer100g = 22,
+                    FatPer100g = 2
+                });
+                ShowCandidates = true;
+            }
+
             IsBusy = false;
-            StatusMessage = $"Results found for '{query}':";
         }
 
         [RelayCommand]
