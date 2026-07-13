@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:IT123P_FINAL_PROJECT.ViewModels"
+             x:Class="IT123P_FINAL_PROJECT.Views.PortionPage"
+             x:DataType="viewmodels.PortionViewModel"
+             Title="Confirm Portion"
+             BackgroundColor="#F5F5FA">
+
+    <Grid RowDefinitions="Auto, *, Auto">
+        
+        <!-- Header -->
+        <Border Grid.Row="0" Padding="20,15" StrokeThickness="0" BackgroundColor="#FFFFFF">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="0,0,16,16" />
+            </Border.StrokeShape>
+            <VerticalStackLayout Spacing="2">
+                <Label Text="Portion &amp; Nutrition" FontSize="22" FontAttributes="Bold" TextColor="#6C4AB6" />
+                <Label Text="Adjust grams to fit your budget" FontSize="12" TextColor="#7E7E8F" />
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- Main Content -->
+        <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
+            <VerticalStackLayout Padding="20" Spacing="20">
+                
+                <!-- Food Name Card -->
+                <Border StrokeThickness="0" Padding="20" BackgroundColor="#FFFFFF">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="16" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="SELECTED FOOD" FontSize="10" FontAttributes="Bold" TextColor="#7E7E8F" CharacterSpacing="1" />
+                        <Label Text="{Binding Candidate.Name}" FontSize="20" FontAttributes="Bold" TextColor="#222222" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Dynamic Nutrition Card -->
+                <Border StrokeThickness="0" Padding="24" BackgroundColor="#6C4AB6">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="18" />
+                    </Border.StrokeShape>
+                    <Grid RowDefinitions="Auto, Auto, Auto" RowSpacing="15">
+                        
+                        <!-- Calories -->
+                        <VerticalStackLayout Grid.Row="0" Spacing="2" HorizontalOptions="Center">
+                            <Label Text="ESTIMATED NUTRITION" FontSize="10" FontAttributes="Bold" TextColor="#E2D9F3" HorizontalOptions="Center" CharacterSpacing="1" />
+                            <HorizontalStackLayout Spacing="4" HorizontalOptions="Center">
+                                <Label Text="{Binding Calories, StringFormat='{0:F0}'}" FontSize="36" FontAttributes="Bold" TextColor="#FFFFFF" />
+                                <Label Text="kcal" FontSize="16" TextColor="#D1C4E9" VerticalOptions="Center" Margin="0,0,0,5" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+
+                        <BoxView Grid.Row="1" HeightRequest="1" BackgroundColor="#33FFFFFF" Margin="10,0" />
+
+                        <!-- Macro Details Grid -->
+                        <Grid Grid.Row="2" ColumnDefinitions="*, *, *" ColumnSpacing="10">
+                            
+                            <!-- Protein -->
+                            <VerticalStackLayout Grid.Column="0" Spacing="2" HorizontalOptions="Center">
+                                <Label Text="Protein" FontSize="11" TextColor="#D1C4E9" HorizontalOptions="Center" />
+                                <Label Text="{Binding Protein, StringFormat='{0:F1}g'}" FontSize="16" FontAttributes="Bold" TextColor="#FFFFFF" HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+
+                            <!-- Carbs -->
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" HorizontalOptions="Center">
+                                <Label Text="Carbs" FontSize="11" TextColor="#D1C4E9" HorizontalOptions="Center" />
+                                <Label Text="{Binding Carbs, StringFormat='{0:F1}g'}" FontSize="16" FontAttributes="Bold" TextColor="#FFFFFF" HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+
+                            <!-- Fat -->
+                            <VerticalStackLayout Grid.Column="2" Spacing="2" HorizontalOptions="Center">
+                                <Label Text="Fat" FontSize="11" TextColor="#D1C4E9" HorizontalOptions="Center" />
+                                <Label Text="{Binding Fat, StringFormat='{0:F1}g'}" FontSize="16" FontAttributes="Bold" TextColor="#FFFFFF" HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- Portion Slider Card -->
+                <Border StrokeThickness="0" Padding="20" BackgroundColor="#FFFFFF">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="16" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="15">
+                        
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0" Text="Adjust Serving Size" FontSize="14" FontAttributes="Bold" TextColor="#222222" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="{Binding Grams, StringFormat='{0:F0} g'}" FontSize="16" FontAttributes="Bold" TextColor="#F06292" VerticalOptions="Center" />
+                        </Grid>
+
+                        <!-- Slider -->
+                        <Slider Minimum="10" Maximum="800" Value="{Binding Grams}" MinimumTrackColor="#6C4AB6" MaximumTrackColor="#E2D9F3" ThumbColor="#F06292" />
+
+                        <!-- Preset Chips -->
+                        <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10" Margin="0,5,0,0">
+                            <Button Grid.Column="0" Text="Small (100g)" BackgroundColor="#F5F5FA" TextColor="#6C4AB6" CornerRadius="8" HeightRequest="36" Padding="0" FontSize="12" Command="{Binding SelectPresetCommand}" CommandParameter="small" />
+                            <Button Grid.Column="1" Text="Medium (200g)" BackgroundColor="#F5F5FA" TextColor="#6C4AB6" CornerRadius="8" HeightRequest="36" Padding="0" FontSize="12" Command="{Binding SelectPresetCommand}" CommandParameter="medium" />
+                            <Button Grid.Column="2" Text="Large (350g)" BackgroundColor="#F5F5FA" TextColor="#6C4AB6" CornerRadius="8" HeightRequest="36" Padding="0" FontSize="12" Command="{Binding SelectPresetCommand}" CommandParameter="large" />
+                        </Grid>
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Fits Diet Checker Banner -->
+                <Border StrokeThickness="0" Padding="15,12" BackgroundColor="{Binding FitsDietColor}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12" />
+                    </Border.StrokeShape>
+                    <Grid ColumnDefinitions="Auto, *">
+                        <Label Grid.Column="0" Text="📊" FontSize="18" VerticalOptions="Center" Margin="0,0,10,0" />
+                        <Label Grid.Column="1" Text="{Binding FitsDietText}" FontSize="14" FontAttributes="Bold" TextColor="#FFFFFF" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Actions -->
+        <Grid Grid.Row="2" ColumnDefinitions="*, *" ColumnSpacing="12" Padding="20,10,20,20" BackgroundColor="#FFFFFF">
+            <Button Grid.Column="0" Text="Cancel" BackgroundColor="#F5F5FA" TextColor="#7E7E8F" CornerRadius="12" HeightRequest="50" FontAttributes="Bold" Command="{Binding CancelCommand}" />
+            <Button Grid.Column="1" Text="Add to Diet Log" BackgroundColor="#F06292" TextColor="#FFFFFF" CornerRadius="12" HeightRequest="50" FontAttributes="Bold" Command="{Binding SaveLogEntryCommand}" />
+        </Grid>
+
+    </Grid>
+</ContentPage>

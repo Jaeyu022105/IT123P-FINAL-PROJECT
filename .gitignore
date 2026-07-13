@@ -1,0 +1,71 @@
+## Visual Studio / JetBrains IDE files
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.userprefs
+*.sln.docstates
+
+## Build output
+[Bb]in/
+[Oo]bj/
+out/
+
+## .NET
+*.dll
+*.exe
+*.pdb
+*.cache
+project.lock.json
+project.fragment.lock.json
+
+## NuGet
+*.nupkg
+.nuget/
+packages/
+!**/packages/repositories.config
+*.nuspec
+
+## MSBuild
+*.msbuild
+
+## Visual Studio generated files
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.VC.VC.opendb
+
+## Mono & Xamarin / MAUI
+*.mdb
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+
+## Android
+*.apk
+*.aab
+*.ap_
+local.properties
+
+## iOS
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+## macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+## Logs
+*.log

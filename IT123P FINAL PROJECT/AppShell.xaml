@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="IT123P_FINAL_PROJECT.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:IT123P_FINAL_PROJECT"
+    xmlns:views="clr-namespace:IT123P_FINAL_PROJECT.Views"
+    Title="FoodLens">
+
+    <TabBar>
+        <Tab Title="Home">
+            <ShellContent ContentTemplate="{DataTemplate views:DietSummaryPage}" Route="DietSummaryPage" />
+        </Tab>
+        <Tab Title="Log Food">
+            <ShellContent ContentTemplate="{DataTemplate views:CameraPage}" Route="CameraPage" />
+        </Tab>
+        <Tab Title="Settings">
+            <ShellContent ContentTemplate="{DataTemplate views:SettingsPage}" Route="SettingsPage" />
+        </Tab>
+    </TabBar>
+
+</Shell>
