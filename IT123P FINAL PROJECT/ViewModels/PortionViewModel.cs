@@ -8,183 +8,175 @@ namespace IT123P_FINAL_PROJECT.ViewModels
     [QueryProperty(nameof(Candidate), "Candidate")]
     public partial class PortionViewModel : ObservableObject
     {
-        private readonly IDatabaseService _databaseService;
-        private readonly IApiService _apiService;
-
-        public PortionViewModel(IDatabaseService databaseService, IApiService apiService)
-        {
-            _databaseService = databaseService;
-            _apiService = apiService;
-            _grams = 150; // Default portion
-        }
-
-        [ObservableProperty]
-        private FoodCandidate? _candidate;
-
-        [ObservableProperty]
-        private double _grams;
-
-        [ObservableProperty]
-        private double _calories;
-
-        [ObservableProperty]
-        private double _protein;
-
-        [ObservableProperty]
-        private double _carbs;
-
-        [ObservableProperty]
-        private double _fat;
-
-        [ObservableProperty]
-        private double _remainingCaloriesBefore;
-
-        [ObservableProperty]
-        private double _remainingCaloriesAfter;
-
-        [ObservableProperty]
-        private bool _fitsDiet;
-
-        [ObservableProperty]
-        private string _fitsDietText = string.Empty;
-
-        [ObservableProperty]
-        private string _fitsDietColor = "#4CAF50"; // Green default
+        private readonly IDatabaseService _db;
+        private readonly IApiService _api;
 
         private double _dailyLimit;
         private double _todayLoggedCalories;
 
-        partial void OnCandidateChanged(FoodCandidate? value)
+        public PortionViewModel(IDatabaseService db, IApiService api)
         {
-            // Use fire-and-forget; real nutrition will be fetched async from backend
-            _ = RefreshNutritionAsync();
+            _db = db;
+            _api = api;
+            _grams = 150; // Sensible default portion
         }
 
-        partial void OnGramsChanged(double value)
-        {
-            _ = RefreshNutritionAsync();
-        }
+        [ObservableProperty] private FoodCandidate? _candidate;
+        [ObservableProperty] private double _grams;
+        [ObservableProperty] private double _calories;
+        [ObservableProperty] private double _protein;
+        [ObservableProperty] private double _carbs;
+        [ObservableProperty] private double _fat;
+        [ObservableProperty] private double _remainingCaloriesBefore;
+        [ObservableProperty] private double _remainingCaloriesAfter;
+        [ObservableProperty] private bool _fitsDiet;
+        [ObservableProperty] private string _fitsDietText = string.Empty;
+        [ObservableProperty] private string _fitsDietColor = "#4CAF50";
+
+        partial void OnCandidateChanged(FoodCandidate? value) => _ = RefreshNutritionAsync();
+        partial void OnGramsChanged(double value)             => _ = RefreshNutritionAsync();
+
+        // ── Load today's budget ───────────────────────────────────────────────
 
         [RelayCommand]
         public async Task LoadBudgetAsync()
         {
-            // Fetch today's current logs and goal
-            var goal = await _databaseService.GetDietGoalAsync();
+            // Try to get the goal from backend; fall back to local
+            var serverGoal = await _api.GetDietGoalAsync();
+            var goal = serverGoal ?? await _db.GetDietGoalAsync();
             _dailyLimit = goal.DailyCalorieLimit;
 
-            var entries = await _databaseService.GetFoodLogEntriesAsync(DateTime.Today);
-            _todayLoggedCalories = 0;
-            foreach (var entry in entries)
-            {
-                _todayLoggedCalories += entry.Calories;
-            }
+            var entries = await _db.GetFoodLogEntriesAsync(DateTime.Today);
+            _todayLoggedCalories = entries.Sum(e => e.Calories);
 
             RemainingCaloriesBefore = Math.Max(0, _dailyLimit - _todayLoggedCalories);
-            UpdateNutrition();
+            await RefreshNutritionAsync();
         }
 
+        // ── Nutrition refresh + backend comparison ────────────────────────────
+
         /// <summary>
-        /// Tries to get real scaled nutrition from the backend.
-        /// Falls back to local per-100g multiplication when backend is unavailable
-        /// or when FdcId is missing (e.g. camera mock candidates).
+        /// Gets real scaled nutrition (from USDA via backend when FdcId available),
+        /// then calls the backend comparison endpoint to determine budget fitness.
+        /// Falls back to local calculation throughout when offline.
         /// </summary>
         private async Task RefreshNutritionAsync()
         {
             if (Candidate == null) return;
 
+            // 1. Get scaled nutrition
             if (!string.IsNullOrWhiteSpace(Candidate.FdcId))
             {
-                var result = await _apiService.GetNutritionAsync(Candidate.FdcId, Grams);
+                var result = await _api.GetNutritionAsync(Candidate.FdcId, Grams);
                 if (result.HasValue)
                 {
                     Calories = result.Value.Calories;
-                    Protein = result.Value.ProteinG;
-                    Carbs = result.Value.CarbsG;
-                    Fat = result.Value.FatG;
-                    UpdateBudgetIndicator();
+                    Protein  = result.Value.ProteinG;
+                    Carbs    = result.Value.CarbsG;
+                    Fat      = result.Value.FatG;
+                    await UpdateBudgetIndicatorAsync();
                     return;
                 }
             }
 
-            // Offline / no FdcId — scale local values
-            UpdateNutrition();
-        }
-
-        private void UpdateNutrition()
-        {
-            if (Candidate == null) return;
-
-            // Scale per 100g
+            // Offline fallback: scale from per-100g values
             double factor = Grams / 100.0;
             Calories = Candidate.CaloriesPer100g * factor;
-            Protein = Candidate.ProteinPer100g * factor;
-            Carbs = Candidate.CarbsPer100g * factor;
-            Fat = Candidate.FatPer100g * factor;
+            Protein  = Candidate.ProteinPer100g  * factor;
+            Carbs    = Candidate.CarbsPer100g    * factor;
+            Fat      = Candidate.FatPer100g      * factor;
 
-            UpdateBudgetIndicator();
+            await UpdateBudgetIndicatorAsync();
         }
 
-        private void UpdateBudgetIndicator()
+        /// <summary>
+        /// Asks the backend /api/diet/compare to evaluate the current portion
+        /// against today's running total. Falls back to local math when offline.
+        /// </summary>
+        private async Task UpdateBudgetIndicatorAsync()
         {
-            double projectedTotal = _todayLoggedCalories + Calories;
-            double remaining = _dailyLimit - projectedTotal;
+            var comparison = await _api.CompareDietAsync(Calories, _todayLoggedCalories);
 
-            if (remaining >= 0)
+            bool fits;
+            double remaining;
+            string message;
+
+            if (comparison != null)
             {
-                FitsDiet = true;
-                RemainingCaloriesAfter = remaining;
-                FitsDietText = $"Fits your remaining budget! ({remaining:F0} kcal left)";
-                FitsDietColor = "#2E7D32"; // Darker, rich green
+                fits      = comparison.FitsDiet;
+                remaining = comparison.RemainingAfter;
+                message   = comparison.Message;
+                // Also keep local limit up-to-date in case it changed on server
+                _dailyLimit = comparison.DailyLimit;
             }
             else
             {
-                FitsDiet = false;
-                RemainingCaloriesAfter = 0;
-                double overage = projectedTotal - _dailyLimit;
-                FitsDietText = $"Over budget! Exceeds daily goal by {overage:F0} kcal ⚠️";
-                FitsDietColor = "#D84315"; // Rich amber/red-orange
+                // Offline — compute locally
+                double projected = _todayLoggedCalories + Calories;
+                fits      = projected <= _dailyLimit;
+                remaining = Math.Max(0, _dailyLimit - projected);
+                message   = fits
+                    ? $"Fits your budget! ({remaining:F0} kcal left)"
+                    : $"Over budget by {projected - _dailyLimit:F0} kcal ⚠️";
             }
+
+            FitsDiet             = fits;
+            RemainingCaloriesAfter = remaining;
+            FitsDietText         = fits
+                ? $"Fits your remaining budget! ({remaining:F0} kcal left)"
+                : message;
+            FitsDietColor        = fits ? "#2E7D32" : "#D84315";
         }
+
+        // ── Preset portions ───────────────────────────────────────────────────
 
         [RelayCommand]
         public void SelectPreset(string portionType)
         {
             Grams = portionType.ToLower() switch
             {
-                "small" => 100,
+                "small"  => 100,
                 "medium" => 200,
-                "large" => 350,
-                _ => 150
+                "large"  => 350,
+                _        => 150
             };
         }
+
+        // ── Save log entry ────────────────────────────────────────────────────
 
         [RelayCommand]
         public async Task SaveLogEntryAsync()
         {
             if (Candidate == null) return;
 
-            var newEntry = new FoodLogEntry
+            var entry = new FoodLogEntry
             {
-                FoodName = Candidate.Name,
-                Calories = Math.Round(Calories, 1),
-                Protein = Math.Round(Protein, 1),
-                Carbs = Math.Round(Carbs, 1),
-                Fat = Math.Round(Fat, 1),
-                Grams = Math.Round(Grams, 1),
-                DateLogged = DateTime.Now
+                FoodName   = Candidate.Name,
+                Calories   = Math.Round(Calories, 1),
+                Protein    = Math.Round(Protein, 1),
+                Carbs      = Math.Round(Carbs, 1),
+                Fat        = Math.Round(Fat, 1),
+                Grams      = Math.Round(Grams, 1),
+                DateLogged = DateTime.Now,
+                IsSynced   = false   // will be set to true after successful backend push
             };
 
-            await _databaseService.SaveFoodLogEntryAsync(newEntry);
+            // 1. Save locally first (always succeeds)
+            await _db.SaveFoodLogEntryAsync(entry);
 
-            // Pop navigation back to home page root
+            // 2. Try to push to backend
+            int serverId = await _api.CreateFoodLogAsync(entry);
+            if (serverId > 0)
+            {
+                entry.ServerId = serverId;
+                entry.IsSynced = true;
+                await _db.SaveFoodLogEntryAsync(entry); // update with ServerId
+            }
+
             await Shell.Current.GoToAsync("///MainPage");
         }
 
         [RelayCommand]
-        public async Task CancelAsync()
-        {
-            // Back one step in navigation stack
-            await Shell.Current.GoToAsync("..");
-        }
+        public async Task CancelAsync() => await Shell.Current.GoToAsync("..");
     }
 }

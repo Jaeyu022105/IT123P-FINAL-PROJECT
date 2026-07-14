@@ -7,39 +7,46 @@ namespace IT123P_FINAL_PROJECT.ViewModels
 {
     public partial class SettingsViewModel : ObservableObject
     {
-        private readonly IDatabaseService _databaseService;
+        private readonly IDatabaseService _db;
+        private readonly IApiService _api;
 
-        public SettingsViewModel(IDatabaseService databaseService)
+        public SettingsViewModel(IDatabaseService db, IApiService api)
         {
-            _databaseService = databaseService;
+            _db = db;
+            _api = api;
         }
 
-        [ObservableProperty]
-        private double _calorieLimit;
-
-        [ObservableProperty]
-        private double _proteinPercentage;
-
-        [ObservableProperty]
-        private double _carbsPercentage;
-
-        [ObservableProperty]
-        private double _fatPercentage;
-
-        [ObservableProperty]
-        private string _validationMessage = string.Empty;
-
-        [ObservableProperty]
-        private bool _isSuccess;
+        [ObservableProperty] private double _calorieLimit;
+        [ObservableProperty] private double _proteinPercentage;
+        [ObservableProperty] private double _carbsPercentage;
+        [ObservableProperty] private double _fatPercentage;
+        [ObservableProperty] private string _validationMessage = string.Empty;
+        [ObservableProperty] private bool _isSuccess;
 
         [RelayCommand]
         public async Task LoadGoalAsync()
         {
-            var goal = await _databaseService.GetDietGoalAsync();
-            CalorieLimit = goal.DailyCalorieLimit;
-            ProteinPercentage = goal.ProteinPercentage;
-            CarbsPercentage = goal.CarbsPercentage;
-            FatPercentage = goal.FatPercentage;
+            // Try backend first; fall back to local cache
+            var serverGoal = await _api.GetDietGoalAsync();
+            if (serverGoal != null)
+            {
+                // Update local cache to keep it consistent
+                await _db.RefreshGoalFromServerAsync(serverGoal);
+                CalorieLimit       = serverGoal.DailyCalorieLimit;
+                ProteinPercentage  = serverGoal.ProteinPercentage;
+                CarbsPercentage    = serverGoal.CarbsPercentage;
+                FatPercentage      = serverGoal.FatPercentage;
+            }
+            else
+            {
+                // Offline — read from local SQLite cache
+                var local = await _db.GetDietGoalAsync();
+                CalorieLimit       = local.DailyCalorieLimit;
+                ProteinPercentage  = local.ProteinPercentage;
+                CarbsPercentage    = local.CarbsPercentage;
+                FatPercentage      = local.FatPercentage;
+            }
+
             ValidationMessage = string.Empty;
             IsSuccess = false;
         }
@@ -50,20 +57,11 @@ namespace IT123P_FINAL_PROJECT.ViewModels
             switch (preset.ToLower())
             {
                 case "balanced":
-                    ProteinPercentage = 30;
-                    CarbsPercentage = 40;
-                    FatPercentage = 30;
-                    break;
+                    ProteinPercentage = 30; CarbsPercentage = 40; FatPercentage = 30; break;
                 case "highprotein":
-                    ProteinPercentage = 40;
-                    CarbsPercentage = 30;
-                    FatPercentage = 30;
-                    break;
+                    ProteinPercentage = 40; CarbsPercentage = 30; FatPercentage = 30; break;
                 case "lowcarb":
-                    ProteinPercentage = 30;
-                    CarbsPercentage = 20;
-                    FatPercentage = 50;
-                    break;
+                    ProteinPercentage = 30; CarbsPercentage = 20; FatPercentage = 50; break;
             }
             ValidationMessage = string.Empty;
         }
@@ -75,17 +73,16 @@ namespace IT123P_FINAL_PROJECT.ViewModels
             double total = ProteinPercentage + CarbsPercentage + FatPercentage;
             if (Math.Abs(total - 100.0) > 0.01)
             {
-                ValidationMessage = $"Macronutrient percentages must total exactly 100%. Currently they total: {total:F0}%.";
+                ValidationMessage = $"Macronutrient percentages must total 100%. Currently: {total:F0}%.";
                 return;
             }
-
             if (CalorieLimit <= 0)
             {
                 ValidationMessage = "Daily calorie limit must be greater than 0.";
                 return;
             }
 
-            var updatedGoal = new DietGoal
+            var goal = new DietGoal
             {
                 Id = 1,
                 DailyCalorieLimit = CalorieLimit,
@@ -94,11 +91,14 @@ namespace IT123P_FINAL_PROJECT.ViewModels
                 FatPercentage = FatPercentage
             };
 
-            await _databaseService.SaveDietGoalAsync(updatedGoal);
+            // Save locally first (always succeeds)
+            await _db.SaveDietGoalAsync(goal);
+
+            // Push to backend (best-effort — failure is silent, local cache remains)
+            await _api.SaveDietGoalAsync(goal);
+
             ValidationMessage = string.Empty;
             IsSuccess = true;
-
-            // Wait 2 seconds and turn off success notification
             await Task.Delay(2000);
             IsSuccess = false;
         }
