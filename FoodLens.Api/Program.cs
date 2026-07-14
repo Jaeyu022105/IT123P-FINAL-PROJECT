@@ -82,7 +82,10 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi(); // serves at /openapi/v1.json
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseAuthorization();
 app.MapControllers();
 
