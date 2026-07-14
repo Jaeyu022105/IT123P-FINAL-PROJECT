@@ -34,6 +34,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
         [ObservableProperty] private double _fatUsed;
         [ObservableProperty] private double _fatProgress;
         [ObservableProperty] private bool _isSyncing;
+        [ObservableProperty] private bool _hasMeals;
 
         public ObservableCollection<FoodLogEntry> LoggedMeals { get; }
 
@@ -88,6 +89,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
             FatUsed     = fat;
             FatProgress = FatLimit > 0 ? Math.Min(1.0, FatUsed / FatLimit) : 0;
 
+            HasMeals = LoggedMeals.Count > 0;
             IsSyncing = false;
         }
 

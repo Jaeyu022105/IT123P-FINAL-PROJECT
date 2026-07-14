@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:IT123P_FINAL_PROJECT.ViewModels"
+             xmlns:models="clr-namespace:IT123P_FINAL_PROJECT.Models"
+             xmlns:conv="clr-namespace:IT123P_FINAL_PROJECT.Converters"
+             x:Class="IT123P_FINAL_PROJECT.Views.HistoryPage"
+             x:DataType="viewmodels.HistoryViewModel"
+             Title="History"
+             BackgroundColor="#F5F5FA">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:InverseBoolConverter x:Key="InverseBoolConverter" />
+            <conv:DoubleToThicknessConverter x:Key="DoubleToThicknessConverter" />
+            <conv:SelectedToColorConverter x:Key="SelectedToColorConverter" />
+            <conv:ZeroToVisibleConverter x:Key="ZeroToVisibleConverter" />
+            <conv:NonZeroToVisibleConverter x:Key="NonZeroToVisibleConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto, *">
+        <!-- Header -->
+        <Border Grid.Row="0" Padding="20,15" StrokeThickness="0" BackgroundColor="#FFFFFF">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="0,0,16,16" />
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="*, Auto">
+                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                    <Label Text="Weekly Analytics" FontSize="24" FontAttributes="Bold" TextColor="#6C4AB6" />
+                    <Label Text="Track trends and performance" FontSize="12" TextColor="#7E7E8F" />
+                </VerticalStackLayout>
+                <ActivityIndicator Grid.Column="1" IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}" Color="#6C4AB6" WidthRequest="24" HeightRequest="24" VerticalOptions="Center" />
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
+            <VerticalStackLayout Padding="20" Spacing="20">
+
+                <!-- No Data Empty State -->
+                <Border StrokeThickness="0" Padding="24" BackgroundColor="#FFFFFF" IsVisible="{Binding HasData, Converter={StaticResource InverseBoolConverter}}" HeightRequest="250" VerticalOptions="Center">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="16" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="15" VerticalOptions="Center" HorizontalOptions="Center">
+                        <Label Text="📊" FontSize="50" HorizontalOptions="Center" />
+                        <Label Text="No History Yet" FontSize="18" FontAttributes="Bold" TextColor="#222222" HorizontalOptions="Center" />
+                        <Label Text="Log meals for consecutive days to see your progress chart here." TextColor="#7E7E8F" HorizontalTextAlignment="Center" HorizontalOptions="Center" MaxLines="2" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Analytics Container (Visible only when there is data) -->
+                <VerticalStackLayout Spacing="20" IsVisible="{Binding HasData}">
+
+                    <!-- Stats Row -->
+                    <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10">
+                        <!-- Avg Calories Card -->
+                        <Border Grid.Column="0" StrokeThickness="0" Padding="10" BackgroundColor="#FFFFFF">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12" />
+                            </Border.StrokeShape>
+                            <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                                <Label Text="AVG CALORIES" FontSize="9" FontAttributes="Bold" TextColor="#7E7E8F" HorizontalOptions="Center" />
+                                <Label Text="{Binding AverageCalories, StringFormat='{0:F0}'}" FontSize="18" FontAttributes="Bold" TextColor="#6C4AB6" HorizontalOptions="Center" />
+                                <Label Text="kcal/day" FontSize="10" TextColor="#7E7E8F" HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Best Day Card -->
+                        <Border Grid.Column="1" StrokeThickness="0" Padding="10" BackgroundColor="#FFFFFF">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12" />
+                            </Border.StrokeShape>
+                            <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                                <Label Text="HIGHEST DAY" FontSize="9" FontAttributes="Bold" TextColor="#7E7E8F" HorizontalOptions="Center" />
+                                <Label Text="{Binding BestDayText}" FontSize="12" FontAttributes="Bold" TextColor="#4CAF50" HorizontalTextAlignment="Center" HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Worst Day Card -->
+                        <Border Grid.Column="2" StrokeThickness="0" Padding="10" BackgroundColor="#FFFFFF">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12" />
+                            </Border.StrokeShape>
+                            <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                                <Label Text="LOWEST DAY" FontSize="9" FontAttributes="Bold" TextColor="#7E7E8F" HorizontalOptions="Center" />
+                                <Label Text="{Binding WorstDayText}" FontSize="12" FontAttributes="Bold" TextColor="#FF9800" HorizontalTextAlignment="Center" HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <!-- Chart Card -->
+                    <Border StrokeThickness="0" Padding="20" BackgroundColor="#FFFFFF">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="16" />
+                        </Border.StrokeShape>
+                        <VerticalStackLayout Spacing="15">
+                            <Label Text="7-DAY CALORIES TREND" FontSize="11" FontAttributes="Bold" TextColor="#7E7E8F" CharacterSpacing="1" />
+
+                            <!-- Bar Chart Visual -->
+                            <Grid HeightRequest="210">
+                                <!-- Horizontal dotted lines as guides -->
+                                <VerticalStackLayout VerticalOptions="Fill" Spacing="40" Margin="0,20,0,30">
+                                    <BoxView HeightRequest="1" BackgroundColor="#E5E5EA" />
+                                    <BoxView HeightRequest="1" BackgroundColor="#E5E5EA" />
+                                    <BoxView HeightRequest="1" BackgroundColor="#E5E5EA" />
+                                </VerticalStackLayout>
+
+                                <!-- The 7 Bars -->
+                                <FlexLayout JustifyContent="SpaceBetween" AlignItems="End" HeightRequest="200" Margin="10,0">
+                                    <BindableLayout.ItemsSource>
+                                        <Binding Path="WeeklyBars" />
+                                    </BindableLayout.ItemsSource>
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="viewmodels:HistoryViewModel+BarEntry">
+                                            <VerticalStackLayout Spacing="6" HorizontalOptions="Center" WidthRequest="40">
+                                                <!-- Calorie number above bar -->
+                                                <Label Text="{Binding CalLabel}" FontSize="9" FontAttributes="Bold" TextColor="#7E7E8F" HorizontalOptions="Center" />
+
+                                                <!-- The Bar itself -->
+                                                <Border StrokeThickness="{Binding IsSelected, Converter={StaticResource DoubleToThicknessConverter}}" Stroke="#6C4AB6" BackgroundColor="{Binding BarColor}" HeightRequest="{Binding BarHeight}" WidthRequest="22" HorizontalOptions="Center">
+                                                    <Border.StrokeShape>
+                                                        <RoundRectangle CornerRadius="11" />
+                                                    </Border.StrokeShape>
+                                                    <Border.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:HistoryViewModel}}, Path=SelectDayCommand}" CommandParameter="{Binding .}" />
+                                                    </Border.GestureRecognizers>
+                                                </Border>
+
+                                                <!-- Day label -->
+                                                <Label Text="{Binding DayLabel}" FontSize="11" FontAttributes="Bold" TextColor="{Binding IsSelected, Converter={StaticResource SelectedToColorConverter}}" HorizontalOptions="Center" />
+                                            </VerticalStackLayout>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </FlexLayout>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Weekly Macro Split -->
+                    <Border StrokeThickness="0" Padding="20" BackgroundColor="#FFFFFF">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="16" />
+                        </Border.StrokeShape>
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="WEEKLY MACRO ENERGY SPLIT" FontSize="11" FontAttributes="Bold" TextColor="#7E7E8F" CharacterSpacing="1" />
+
+                            <!-- Custom segment bar -->
+                            <Grid HeightRequest="16" ColumnDefinitions="*, *, *" Margin="0,5">
+                                <!-- Protein Segment -->
+                                <Border Grid.Column="0" BackgroundColor="#6C4AB6" StrokeThickness="0" Grid.ColumnSpan="1" HorizontalOptions="FillAndExpand">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="8,0,8,0" />
+                                    </Border.StrokeShape>
+                                </Border>
+                                <!-- Carbs Segment -->
+                                <Border Grid.Column="1" BackgroundColor="#4CAF50" StrokeThickness="0" Grid.ColumnSpan="1" HorizontalOptions="FillAndExpand" />
+                                <!-- Fat Segment -->
+                                <Border Grid.Column="2" BackgroundColor="#FF9800" StrokeThickness="0" Grid.ColumnSpan="1" HorizontalOptions="FillAndExpand">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="0,8,0,8" />
+                                    </Border.StrokeShape>
+                                </Border>
+                            </Grid>
+
+                            <!-- Legend -->
+                            <Grid ColumnDefinitions="*, *, *">
+                                <HorizontalStackLayout Grid.Column="0" Spacing="5" HorizontalOptions="Center">
+                                    <BoxView WidthRequest="10" HeightRequest="10" Color="#6C4AB6" CornerRadius="5" VerticalOptions="Center" />
+                                    <Label Text="{Binding ProteinFrac, StringFormat='Protein ({0:P0})'}" FontSize="11" TextColor="#222222" />
+                                </HorizontalStackLayout>
+                                <HorizontalStackLayout Grid.Column="1" Spacing="5" HorizontalOptions="Center">
+                                    <BoxView WidthRequest="10" HeightRequest="10" Color="#4CAF50" CornerRadius="5" VerticalOptions="Center" />
+                                    <Label Text="{Binding CarbsFrac, StringFormat='Carbs ({0:P0})'}" FontSize="11" TextColor="#222222" />
+                                </HorizontalStackLayout>
+                                <HorizontalStackLayout Grid.Column="2" Spacing="5" HorizontalOptions="Center">
+                                    <BoxView WidthRequest="10" HeightRequest="10" Color="#FF9800" CornerRadius="5" VerticalOptions="Center" />
+                                    <Label Text="{Binding FatFrac, StringFormat='Fat ({0:P0})'}" FontSize="11" TextColor="#222222" />
+                                </HorizontalStackLayout>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Drill Down Section -->
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="{Binding SelectedDayHeader}" FontSize="16" FontAttributes="Bold" TextColor="#222222" />
+
+                    <!-- Empty Day State -->
+                    <Border StrokeThickness="0" Padding="20" BackgroundColor="#FFFFFF" IsVisible="{Binding SelectedDayMeals.Count, Converter={StaticResource ZeroToVisibleConverter}}">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12" />
+                        </Border.StrokeShape>
+                        <Label Text="No meals logged for this day." TextColor="#7E7E8F" HorizontalOptions="Center" />
+                    </Border>
+
+                    <!-- Day meals list -->
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding SelectedDayMeals}" Spacing="10" IsVisible="{Binding SelectedDayMeals.Count, Converter={StaticResource NonZeroToVisibleConverter}}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models.FoodLogEntry">
+                                <Border StrokeThickness="0" Padding="14,10" BackgroundColor="#FFFFFF">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="12" />
+                                    </Border.StrokeShape>
+                                    <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
+                                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                            <Label Text="{Binding FoodName}" FontSize="14" FontAttributes="Bold" TextColor="#222222" />
+                                            <HorizontalStackLayout Spacing="8">
+                                                <Label Text="{Binding Grams, StringFormat='{0:F0}g'}" FontSize="11" TextColor="#7E7E8F" />
+                                                <Label Text="•" FontSize="11" TextColor="#7E7E8F" />
+                                                <Label Text="{Binding Protein, StringFormat='P: {0:F0}g'}" FontSize="11" TextColor="#6C4AB6" />
+                                                <Label Text="{Binding Carbs, StringFormat='C: {0:F0}g'}" FontSize="11" TextColor="#4CAF50" />
+                                                <Label Text="{Binding Fat, StringFormat='F: {0:F0}g'}" FontSize="11" TextColor="#FF9800" />
+                                            </HorizontalStackLayout>
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="1" Text="{Binding Calories, StringFormat='{0:F0} kcal'}" FontSize="14" FontAttributes="Bold" TextColor="#F06292" VerticalOptions="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

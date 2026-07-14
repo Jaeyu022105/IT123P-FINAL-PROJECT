@@ -29,6 +29,8 @@ namespace IT123P_FINAL_PROJECT.ViewModels
         [ObservableProperty] private double _fat;
         [ObservableProperty] private double _remainingCaloriesBefore;
         [ObservableProperty] private double _remainingCaloriesAfter;
+        [ObservableProperty] private double _projectedCalories;
+        [ObservableProperty] private double _projectedProgress;
         [ObservableProperty] private bool _fitsDiet;
         [ObservableProperty] private string _fitsDietText = string.Empty;
         [ObservableProperty] private string _fitsDietColor = "#4CAF50";
@@ -122,6 +124,8 @@ namespace IT123P_FINAL_PROJECT.ViewModels
 
             FitsDiet             = fits;
             RemainingCaloriesAfter = remaining;
+            ProjectedCalories    = _todayLoggedCalories + Calories;
+            ProjectedProgress    = _dailyLimit > 0 ? Math.Min(1.0, ProjectedCalories / _dailyLimit) : 0;
             FitsDietText         = fits
                 ? $"Fits your remaining budget! ({remaining:F0} kcal left)"
                 : message;

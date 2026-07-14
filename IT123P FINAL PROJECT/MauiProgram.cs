@@ -36,12 +36,14 @@ namespace IT123P_FINAL_PROJECT
             builder.Services.AddTransient<CameraViewModel>();
             builder.Services.AddTransient<PortionViewModel>();
             builder.Services.AddTransient<SettingsViewModel>();
+            builder.Services.AddTransient<HistoryViewModel>();
 
             // Register Views
             builder.Services.AddTransient<DietSummaryPage>();
             builder.Services.AddTransient<CameraPage>();
             builder.Services.AddTransient<PortionPage>();
             builder.Services.AddTransient<SettingsPage>();
+            builder.Services.AddTransient<HistoryPage>();
 
 #if DEBUG
     		builder.Logging.AddDebug();

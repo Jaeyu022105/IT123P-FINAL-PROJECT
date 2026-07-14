@@ -11,6 +11,9 @@
         <Tab Title="Home">
             <ShellContent ContentTemplate="{DataTemplate views:DietSummaryPage}" Route="DietSummaryPage" />
         </Tab>
+        <Tab Title="History">
+            <ShellContent ContentTemplate="{DataTemplate views:HistoryPage}" Route="HistoryPage" />
+        </Tab>
         <Tab Title="Log Food">
             <ShellContent ContentTemplate="{DataTemplate views:CameraPage}" Route="CameraPage" />
         </Tab>
