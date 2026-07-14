@@ -9,5 +9,8 @@ namespace IT123P_FINAL_PROJECT.Services
 
         /// <summary>Get scaled nutrition for a food. Returns null if backend is unavailable.</summary>
         Task<(double Calories, double ProteinG, double CarbsG, double FatG)?> GetNutritionAsync(string fdcId, double grams);
+
+        /// <summary>Classifies the food items inside a local image file. Returns an empty list on failure.</summary>
+        Task<List<FoodCandidate>> ClassifyImageAsync(string imagePath);
     }
 }

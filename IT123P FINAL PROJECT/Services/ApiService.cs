@@ -67,6 +67,33 @@ namespace IT123P_FINAL_PROJECT.Services
             }
         }
 
+        public async Task<List<FoodCandidate>> ClassifyImageAsync(string imagePath)
+        {
+            try
+            {
+                if (!File.Exists(imagePath)) return new List<FoodCandidate>();
+
+                using var content = new MultipartFormDataContent();
+                using var fileStream = File.OpenRead(imagePath);
+                using var streamContent = new StreamContent(fileStream);
+                // Set boundary content type
+                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
+                content.Add(streamContent, "image", Path.GetFileName(imagePath));
+
+                var response = await _http.PostAsync("api/recognition/classify", content);
+                response.EnsureSuccessStatusCode();
+
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var candidates = await response.Content.ReadFromJsonAsync<List<FoodCandidate>>(options);
+                return candidates ?? new List<FoodCandidate>();
+            }
+            catch (Exception)
+            {
+                // Graceful fallback on network/server failures
+                return new List<FoodCandidate>();
+            }
+        }
+
         // ── Internal response shapes (mirror backend DTOs) ─────────────────────
         private class FoodSearchResult
         {

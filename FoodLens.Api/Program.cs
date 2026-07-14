@@ -27,6 +27,9 @@ builder.Services.AddHttpClient<IUsdaClient, UsdaClient>(client =>
     client.Timeout = TimeSpan.FromSeconds(15);
 });
 
+// Register parameterless HttpClient for general outgoing requests (e.g. LogMeal API proxy)
+builder.Services.AddHttpClient();
+
 // ── Repositories & Services ──────────────────────────────────────────────────
 builder.Services.AddScoped<IFoodLogRepository, FoodLogRepository>();
 builder.Services.AddScoped<IDietGoalRepository, DietGoalRepository>();

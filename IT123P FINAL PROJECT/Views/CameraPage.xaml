@@ -52,6 +52,14 @@
                     <VerticalStackLayout Spacing="12">
                         <Label Text="Recognized Food Candidates" FontAttributes="Bold" FontSize="15" TextColor="#222222" Margin="0,5,0,0" />
                         
+                        <!-- Captured Image Preview -->
+                        <Border StrokeThickness="0" HeightRequest="180" BackgroundColor="#E2D9F3" Margin="0,0,0,5" HorizontalOptions="FillAndExpand">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="16" />
+                            </Border.StrokeShape>
+                            <Image Source="{Binding CapturedImageSource}" Aspect="AspectFill" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" />
+                        </Border>
+                        
                         <VerticalStackLayout BindableLayout.ItemsSource="{Binding Candidates}" Spacing="10">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models.FoodCandidate">

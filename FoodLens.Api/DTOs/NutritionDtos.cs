@@ -27,4 +27,18 @@ namespace FoodLens.Api.DTOs
         public double CarbsG { get; set; }
         public double FatG { get; set; }
     }
+
+    /// <summary>
+    /// Represents a food candidate identified via image recognition, pre-resolved with USDA nutrition data.
+    /// </summary>
+    public class FoodCandidateDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public double Confidence { get; set; }
+        public string FdcId { get; set; } = string.Empty;
+        public double CaloriesPer100g { get; set; }
+        public double ProteinPer100g { get; set; }
+        public double CarbsPer100g { get; set; }
+        public double FatPer100g { get; set; }
+    }
 }
