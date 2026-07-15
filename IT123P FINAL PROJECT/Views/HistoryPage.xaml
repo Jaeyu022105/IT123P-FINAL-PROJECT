@@ -5,7 +5,7 @@
              xmlns:models="clr-namespace:IT123P_FINAL_PROJECT.Models"
              xmlns:conv="clr-namespace:IT123P_FINAL_PROJECT.Converters"
              x:Class="IT123P_FINAL_PROJECT.Views.HistoryPage"
-             x:DataType="viewmodels.HistoryViewModel"
+             x:DataType="viewmodels:HistoryViewModel"
              Title="History"
              BackgroundColor="{StaticResource Canvas}">
 
@@ -198,7 +198,7 @@
                     <!-- Day meals list -->
                     <VerticalStackLayout BindableLayout.ItemsSource="{Binding SelectedDayMeals}" Spacing="10" IsVisible="{Binding SelectedDayMeals.Count, Converter={StaticResource NonZeroToVisibleConverter}}">
                         <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="models.FoodLogEntry">
+                            <DataTemplate x:DataType="models:FoodLogEntry">
                                 <Border StrokeThickness="0" Padding="14,10" BackgroundColor="{StaticResource Surface}">
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="12" />

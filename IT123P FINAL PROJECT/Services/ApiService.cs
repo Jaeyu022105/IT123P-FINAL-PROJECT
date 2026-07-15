@@ -176,6 +176,33 @@ namespace IT123P_FINAL_PROJECT.Services
             catch { return null; }
         }
 
+        public async Task<string?> ExportDietLogAsync(DateTime from, DateTime to)
+        {
+            try
+            {
+                var body = new { UserId = "default", FromDate = from, ToDate = to };
+                var json = JsonSerializer.Serialize(body);
+                
+                using var request = new HttpRequestMessage(HttpMethod.Post, "api/export");
+                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/xml"));
+                
+                var response = await _http.SendAsync(request);
+                var content = await response.Content.ReadAsStringAsync();
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    return $"Error: {content}";
+                }
+                
+                return content;
+            }
+            catch (Exception ex)
+            {
+                return $"Error: Connection failed. {ex.Message}";
+            }
+        }
+
         // ── Internal DTOs (mirror backend shapes) ─────────────────────────────
 
         private static FoodLogEntry MapFromDto(FoodLogDto dto) => new()

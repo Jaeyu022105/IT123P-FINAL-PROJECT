@@ -5,7 +5,7 @@
              xmlns:models="clr-namespace:IT123P_FINAL_PROJECT.Models"
              xmlns:conv="clr-namespace:IT123P_FINAL_PROJECT.Converters"
              x:Class="IT123P_FINAL_PROJECT.Views.DietSummaryPage"
-             x:DataType="viewmodels.DietSummaryViewModel"
+             x:DataType="viewmodels:DietSummaryViewModel"
              Title="Home"
              BackgroundColor="{StaticResource Canvas}">
 
@@ -131,7 +131,7 @@
                 <!-- Logged Meals List -->
                 <VerticalStackLayout BindableLayout.ItemsSource="{Binding LoggedMeals}" Spacing="10" IsVisible="{Binding HasMeals}">
                     <BindableLayout.ItemTemplate>
-                        <DataTemplate x:DataType="models.FoodLogEntry">
+                        <DataTemplate x:DataType="models:FoodLogEntry">
                             <Border StrokeThickness="0" Padding="14,10" BackgroundColor="{StaticResource Surface}">
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="12" />

@@ -15,16 +15,16 @@
     Shell.TabBarUnselectedColor="{StaticResource TextMuted}">
 
     <TabBar>
-        <Tab Title="Home">
+        <Tab Title="Home" Icon="home_icon.png">
             <ShellContent ContentTemplate="{DataTemplate views:DietSummaryPage}" Route="DietSummaryPage" />
         </Tab>
-        <Tab Title="History">
+        <Tab Title="History" Icon="history_icon.png">
             <ShellContent ContentTemplate="{DataTemplate views:HistoryPage}" Route="HistoryPage" />
         </Tab>
-        <Tab Title="Log Food">
+        <Tab Title="Log Food" Icon="camera_icon.png">
             <ShellContent ContentTemplate="{DataTemplate views:CameraPage}" Route="CameraPage" />
         </Tab>
-        <Tab Title="Settings">
+        <Tab Title="Settings" Icon="settings_icon.png">
             <ShellContent ContentTemplate="{DataTemplate views:SettingsPage}" Route="SettingsPage" />
         </Tab>
     </TabBar>

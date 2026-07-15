@@ -4,7 +4,7 @@
              xmlns:viewmodels="clr-namespace:IT123P_FINAL_PROJECT.ViewModels"
              xmlns:models="clr-namespace:IT123P_FINAL_PROJECT.Models"
              x:Class="IT123P_FINAL_PROJECT.Views.CameraPage"
-             x:DataType="viewmodels.CameraViewModel"
+             x:DataType="viewmodels:CameraViewModel"
              Title="Log Food"
              BackgroundColor="{StaticResource Canvas}">
 
@@ -62,7 +62,7 @@
                         
                         <VerticalStackLayout BindableLayout.ItemsSource="{Binding Candidates}" Spacing="10">
                             <BindableLayout.ItemTemplate>
-                                <DataTemplate x:DataType="models.FoodCandidate">
+                                <DataTemplate x:DataType="models:FoodCandidate">
                                     <Border StrokeThickness="0" Padding="16,14" BackgroundColor="{StaticResource Surface}">
                                         <Border.StrokeShape>
                                             <RoundRectangle CornerRadius="14" />

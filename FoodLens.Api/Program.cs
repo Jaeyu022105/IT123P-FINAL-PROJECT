@@ -1,4 +1,7 @@
 using System.Threading.RateLimiting;
+using CoreWCF;
+using CoreWCF.Configuration;
+using CoreWCF.Description;
 using FoodLens.Api.Data;
 using FoodLens.Api.Middleware;
 using FoodLens.Api.Services;
@@ -8,8 +11,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ── Database ────────────────────────────────────────────────────────────────
 var dbProvider = builder.Configuration["DatabaseProvider"] ?? "sqlite";
-var connectionString = builder.Configuration.GetConnectionString("Default")
-    ?? "Data Source=foodlens.db";
+var connectionString = builder.Configuration.GetConnectionString("Default");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    connectionString = "Data Source=foodlens.db";
+}
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
@@ -33,6 +39,12 @@ builder.Services.AddHttpClient();
 // ── Repositories & Services ──────────────────────────────────────────────────
 builder.Services.AddScoped<IFoodLogRepository, FoodLogRepository>();
 builder.Services.AddScoped<IDietGoalRepository, DietGoalRepository>();
+
+// ── CoreWCF SOAP Service ─────────────────────────────────────────────────────
+builder.Services.AddServiceModelServices();
+builder.Services.AddServiceModelMetadata();
+builder.Services.AddSingleton<IServiceBehavior, UseRequestHeadersForMetadataAddressBehavior>();
+builder.Services.AddScoped<DietExportService>();
 
 // ── MVC + XML formatter ──────────────────────────────────────────────────────
 builder.Services.AddControllers()
@@ -76,6 +88,18 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();   // 1. Outermost — catches 
 app.UseMiddleware<RequestLoggingMiddleware>();      // 2. Log every request
 app.UseRateLimiter();                               // 3. Rate-limit before heavy work
 app.UseCors();
+
+// ── CoreWCF SOAP Endpoint ────────────────────────────────────────────────────
+app.UseServiceModel(serviceBuilder =>
+{
+    serviceBuilder.AddService<DietExportService>();
+    serviceBuilder.AddServiceEndpoint<DietExportService, IDietExportService>(
+        new CoreWCF.BasicHttpBinding(),
+        "/soap/DietExportService.svc");
+
+    var serviceMetadataBehavior = app.Services.GetRequiredService<ServiceMetadataBehavior>();
+    serviceMetadataBehavior.HttpGetEnabled = true;
+});
 
 if (app.Environment.IsDevelopment())
 {

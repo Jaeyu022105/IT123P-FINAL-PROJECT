@@ -2,10 +2,17 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:IT123P_FINAL_PROJECT.ViewModels"
+             xmlns:conv="clr-namespace:IT123P_FINAL_PROJECT.Converters"
              x:Class="IT123P_FINAL_PROJECT.Views.SettingsPage"
-             x:DataType="viewmodels.SettingsViewModel"
+             x:DataType="viewmodels:SettingsViewModel"
              Title="Settings"
              BackgroundColor="{StaticResource Canvas}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:InverseBoolConverter x:Key="InverseBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto, *, Auto">
         
@@ -71,9 +78,30 @@
                         <Label Text="MACRO RATIO PRESETS" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextMuted}" CharacterSpacing="1" />
                         
                         <Grid ColumnDefinitions="*, *, *" ColumnSpacing="8" Margin="0,5,0,0">
-                            <Button Grid.Column="0" Text="Balanced" BackgroundColor="{StaticResource Canvas}" TextColor="{StaticResource Plum}" CornerRadius="8" HeightRequest="45" Padding="0" FontSize="11" Command="{Binding ApplyPresetCommand}" CommandParameter="balanced" />
-                            <Button Grid.Column="1" Text="High Protein" BackgroundColor="{StaticResource Canvas}" TextColor="{StaticResource Plum}" CornerRadius="8" HeightRequest="45" Padding="0" FontSize="11" Command="{Binding ApplyPresetCommand}" CommandParameter="highprotein" />
-                            <Button Grid.Column="2" Text="Low Carb" BackgroundColor="{StaticResource Canvas}" TextColor="{StaticResource Plum}" CornerRadius="8" HeightRequest="45" Padding="0" FontSize="11" Command="{Binding ApplyPresetCommand}" CommandParameter="lowcarb" />
+                            <Button Grid.Column="0" Text="Balanced" BackgroundColor="{StaticResource Canvas}" TextColor="{StaticResource Plum}" CornerRadius="8" HeightRequest="45" Padding="0" FontSize="11" Command="{Binding ApplyPresetCommand}" CommandParameter="balanced">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding IsBalancedSelected}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource Plum}" />
+                                        <Setter Property="TextColor" Value="{StaticResource Surface}" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Column="1" Text="High Protein" BackgroundColor="{StaticResource Canvas}" TextColor="{StaticResource Plum}" CornerRadius="8" HeightRequest="45" Padding="0" FontSize="11" Command="{Binding ApplyPresetCommand}" CommandParameter="highprotein">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding IsHighProteinSelected}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource Plum}" />
+                                        <Setter Property="TextColor" Value="{StaticResource Surface}" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Column="2" Text="Low Carb" BackgroundColor="{StaticResource Canvas}" TextColor="{StaticResource Plum}" CornerRadius="8" HeightRequest="45" Padding="0" FontSize="11" Command="{Binding ApplyPresetCommand}" CommandParameter="lowcarb">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding IsLowCarbSelected}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource Plum}" />
+                                        <Setter Property="TextColor" Value="{StaticResource Surface}" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
                         </Grid>
                     </VerticalStackLayout>
                 </Border>
@@ -86,7 +114,30 @@
                     <VerticalStackLayout Spacing="10">
                         <Label Text="LEGACY DATA EXPORT" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextMuted}" CharacterSpacing="1" />
                         <Label Text="Export your daily diet summaries to external SOAP/XML-based clinical databases (e.g. dietitian clinical systems)." FontSize="12" TextColor="{StaticResource TextMuted}" />
-                        <Button Text="Export logs (Phase 5)" BackgroundColor="{StaticResource Canvas}" TextColor="{StaticResource TextMuted}" CornerRadius="8" HeightRequest="40" Margin="0,5,0,0" IsEnabled="False" />
+                        
+                        <Button Text="Export logs (Phase 5)" 
+                                Command="{Binding ExportLogsCommand}"
+                                BackgroundColor="{StaticResource Berry}" 
+                                TextColor="{StaticResource Surface}" 
+                                CornerRadius="8" 
+                                HeightRequest="40" 
+                                Margin="0,5,0,0" 
+                                IsEnabled="{Binding IsExporting, Converter={StaticResource InverseBoolConverter}}" />
+
+                        <!-- Status and Activity Indicator -->
+                        <HorizontalStackLayout Spacing="10" HorizontalOptions="Center" Margin="0,5,0,0" IsVisible="{Binding IsExporting}">
+                            <ActivityIndicator IsRunning="{Binding IsExporting}" Color="{StaticResource Plum}" WidthRequest="20" HeightRequest="20" />
+                            <Label Text="{Binding ExportStatus}" FontSize="12" TextColor="{StaticResource TextMuted}" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        
+                        <!-- Static status message (for success/failure) -->
+                        <Label Text="{Binding ExportStatus}" 
+                               IsVisible="{Binding IsExporting, Converter={StaticResource InverseBoolConverter}}"
+                               FontSize="12" 
+                               FontAttributes="Bold" 
+                               TextColor="{StaticResource Plum}" 
+                               HorizontalOptions="Center" 
+                               Margin="0,5,0,0" />
                     </VerticalStackLayout>
                 </Border>
 

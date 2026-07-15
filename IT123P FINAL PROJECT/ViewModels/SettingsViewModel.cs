@@ -17,11 +17,31 @@ namespace IT123P_FINAL_PROJECT.ViewModels
         }
 
         [ObservableProperty] private double _calorieLimit;
-        [ObservableProperty] private double _proteinPercentage;
-        [ObservableProperty] private double _carbsPercentage;
-        [ObservableProperty] private double _fatPercentage;
+        
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsBalancedSelected))]
+        [NotifyPropertyChangedFor(nameof(IsHighProteinSelected))]
+        [NotifyPropertyChangedFor(nameof(IsLowCarbSelected))]
+        private double _proteinPercentage;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsBalancedSelected))]
+        [NotifyPropertyChangedFor(nameof(IsHighProteinSelected))]
+        [NotifyPropertyChangedFor(nameof(IsLowCarbSelected))]
+        private double _carbsPercentage;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsBalancedSelected))]
+        [NotifyPropertyChangedFor(nameof(IsHighProteinSelected))]
+        [NotifyPropertyChangedFor(nameof(IsLowCarbSelected))]
+        private double _fatPercentage;
+
         [ObservableProperty] private string _validationMessage = string.Empty;
         [ObservableProperty] private bool _isSuccess;
+
+        public bool IsBalancedSelected => Math.Abs(ProteinPercentage - 30) < 0.1 && Math.Abs(CarbsPercentage - 40) < 0.1 && Math.Abs(FatPercentage - 30) < 0.1;
+        public bool IsHighProteinSelected => Math.Abs(ProteinPercentage - 40) < 0.1 && Math.Abs(CarbsPercentage - 30) < 0.1 && Math.Abs(FatPercentage - 30) < 0.1;
+        public bool IsLowCarbSelected => Math.Abs(ProteinPercentage - 30) < 0.1 && Math.Abs(CarbsPercentage - 20) < 0.1 && Math.Abs(FatPercentage - 50) < 0.1;
 
         [RelayCommand]
         public async Task LoadGoalAsync()
@@ -52,8 +72,30 @@ namespace IT123P_FINAL_PROJECT.ViewModels
         }
 
         [RelayCommand]
-        public void ApplyPreset(string preset)
+        public async Task ApplyPresetAsync(string preset)
         {
+            bool isCurrent = false;
+            switch (preset.ToLower())
+            {
+                case "balanced":
+                    isCurrent = IsBalancedSelected; break;
+                case "highprotein":
+                    isCurrent = IsHighProteinSelected; break;
+                case "lowcarb":
+                    isCurrent = IsLowCarbSelected; break;
+            }
+
+            if (isCurrent) return;
+
+            // Prompt user before overriding
+            bool confirm = await Shell.Current.DisplayAlert(
+                "Override Macros?",
+                "Are you sure you want to override your current macronutrient targets with this preset?",
+                "Yes",
+                "No");
+
+            if (!confirm) return;
+
             switch (preset.ToLower())
             {
                 case "balanced":
@@ -101,6 +143,72 @@ namespace IT123P_FINAL_PROJECT.ViewModels
             IsSuccess = true;
             await Task.Delay(2000);
             IsSuccess = false;
+        }
+
+        [ObservableProperty] private bool _isExporting;
+        [ObservableProperty] private string _exportStatus = string.Empty;
+
+        [RelayCommand]
+        public async Task ExportLogsAsync()
+        {
+            IsExporting = true;
+            ExportStatus = "Initiating SOAP XML export...";
+
+            try
+            {
+                // Export last 7 days of logs (from 7 days ago to today)
+                var fromDate = DateTime.Today.AddDays(-7);
+                var toDate = DateTime.Today;
+
+                var result = await _api.ExportDietLogAsync(fromDate, toDate);
+
+                if (string.IsNullOrEmpty(result))
+                {
+                    ExportStatus = "Export failed.";
+                    await Shell.Current.DisplayAlert("Export Failed", "Could not connect to the legacy SOAP export service.", "OK");
+                }
+                else if (result.StartsWith("Error:"))
+                {
+                    ExportStatus = "Export failed.";
+                    var errMsg = result.Substring(6).Trim();
+
+                    // Parse JSON error response if possible
+                    string cleanMsg = errMsg;
+                    try
+                    {
+                        using var doc = System.Text.Json.JsonDocument.Parse(errMsg);
+                        if (doc.RootElement.TryGetProperty("error", out var err) && err.TryGetProperty("message", out var msg))
+                        {
+                            cleanMsg = msg.GetString() ?? cleanMsg;
+                        }
+                    }
+                    catch { }
+
+                    await Shell.Current.DisplayAlert("Export Failed", cleanMsg, "OK");
+                }
+                else
+                {
+                    ExportStatus = "Export succeeded!";
+
+                    // Display success and let user view the raw WCF SOAP XML payload
+                    await Shell.Current.DisplayAlert("Export Succeeded (Phase 5)", 
+                        $"Successfully exported diet logs to the legacy system!\n\nRaw SOAP-XML:\n\n{result}", "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                ExportStatus = "Export failed.";
+                await Shell.Current.DisplayAlert("Error", $"An unexpected error occurred: {ex.Message}", "OK");
+            }
+            finally
+            {
+                IsExporting = false;
+                await Task.Delay(3000);
+                if (ExportStatus == "Export succeeded!" || ExportStatus == "Export failed.")
+                {
+                    ExportStatus = string.Empty;
+                }
+            }
         }
     }
 }
