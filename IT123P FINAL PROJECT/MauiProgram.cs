@@ -42,6 +42,7 @@ namespace IT123P_FINAL_PROJECT
             builder.Services.AddTransient<PortionViewModel>();
             builder.Services.AddTransient<SettingsViewModel>();
             builder.Services.AddTransient<HistoryViewModel>();
+            builder.Services.AddTransient<ChatViewModel>();
 
             // Register Views
             builder.Services.AddTransient<DietSummaryPage>();
@@ -49,6 +50,7 @@ namespace IT123P_FINAL_PROJECT
             builder.Services.AddTransient<PortionPage>();
             builder.Services.AddTransient<SettingsPage>();
             builder.Services.AddTransient<HistoryPage>();
+            builder.Services.AddTransient<ChatPage>();
 
 #if DEBUG
     		builder.Logging.AddDebug();

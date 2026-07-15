@@ -38,6 +38,10 @@ namespace IT123P_FINAL_PROJECT.Services
         // ── SOAP Export (Phase 5) ─────────────────────────────────────────────
         /// <summary>Request the backend to trigger a SOAP legacy export. Returns raw XML payload on success, null on failure.</summary>
         Task<string?> ExportDietLogAsync(DateTime from, DateTime to);
+
+        // ── Chat ──────────────────────────────────────────────────────────────
+        /// <summary>Send chat messages history to backend and receive response.</summary>
+        Task<ChatResponseDto?> SendChatMessageAsync(List<ChatMessageDto> messages);
     }
 
     /// <summary>Client-side mirror of the backend DietCompareResultDto.</summary>

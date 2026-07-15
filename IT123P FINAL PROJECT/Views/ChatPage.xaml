@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:IT123P_FINAL_PROJECT.ViewModels"
+             xmlns:conv="clr-namespace:IT123P_FINAL_PROJECT.Converters"
+             x:Class="IT123P_FINAL_PROJECT.Views.ChatPage"
+             x:DataType="viewmodels:ChatViewModel"
+             Title="AI Dietitian"
+             BackgroundColor="{StaticResource Canvas}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:InverseBoolConverter x:Key="InverseBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto, *, Auto, Auto" Padding="0">
+        
+        <!-- Header -->
+        <Border Grid.Row="0" Padding="20,15" StrokeThickness="0" BackgroundColor="{StaticResource Surface}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="0,0,16,16" />
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="*, Auto">
+                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                    <Label Text="AI Diet Assistant" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource Plum}" />
+                    <Label Text="Chat with Gemini to build your diet goals" FontSize="12" TextColor="{StaticResource TextMuted}" />
+                </VerticalStackLayout>
+                <Border Grid.Column="1" BackgroundColor="#E8F8F5" Padding="10,5" StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12" />
+                    </Border.StrokeShape>
+                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                        <Ellipse WidthRequest="8" HeightRequest="8" Fill="#2ECC71" VerticalOptions="Center" />
+                        <Label Text="Online" FontSize="11" FontAttributes="Bold" TextColor="#27AE60" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Message List -->
+        <CollectionView Grid.Row="1" 
+                        ItemsSource="{Binding Messages}" 
+                        Margin="15" 
+                        VerticalScrollBarVisibility="Never">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="viewmodels:ChatMessageDisplay">
+                    <Grid HorizontalOptions="{Binding Alignment}">
+                        <Border StrokeThickness="0" 
+                                Padding="15,12" 
+                                BackgroundColor="{Binding BubbleColor}" 
+                                MaximumWidthRequest="300">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="14" />
+                            </Border.StrokeShape>
+                            <Label Text="{Binding Text}" 
+                                   TextColor="{Binding TextColor}" 
+                                   FontSize="14" 
+                                   LineBreakMode="WordWrap" />
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Floating Goal Proposed Banner -->
+        <Border Grid.Row="2" 
+                Margin="15,5" 
+                Padding="15,12" 
+                BackgroundColor="#1B63C1" 
+                StrokeThickness="0"
+                IsVisible="{Binding PlanUpdatedAlertVisible}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="12" />
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
+                <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
+                    <Label Text="PROPOSED DIET PLAN TARGETS" FontSize="10" FontAttributes="Bold" TextColor="White" CharacterSpacing="1" />
+                    <Label Text="{Binding PlanUpdatedAlertMessage}" FontSize="12" TextColor="White" FontAttributes="Bold" />
+                </VerticalStackLayout>
+                <HorizontalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center">
+                    <Button Text="Apply" 
+                            FontSize="11" 
+                            FontAttributes="Bold" 
+                            TextColor="White" 
+                            HeightRequest="32" 
+                            BackgroundColor="#2ECC71" 
+                            CornerRadius="6" 
+                            Command="{Binding ApplyPlanCommand}"/>
+                    <Button Text="Dismiss" 
+                            FontSize="11" 
+                            FontAttributes="Bold" 
+                            TextColor="White" 
+                            HeightRequest="32" 
+                            BackgroundColor="#E74C3C" 
+                            CornerRadius="6" 
+                            Command="{Binding DismissPlanCommand}"/>
+                </HorizontalStackLayout>
+            </Grid>
+        </Border>
+
+        <!-- Bottom Input Bar -->
+        <Border Grid.Row="3" 
+                Margin="15,10,15,15" 
+                Padding="8" 
+                StrokeThickness="1" 
+                Stroke="#E0E0E0" 
+                BackgroundColor="{StaticResource Surface}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="24" />
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                <Entry Grid.Column="0" 
+                       Text="{Binding InputText}" 
+                       Placeholder="Type a message or ask for a diet plan..." 
+                       PlaceholderColor="{StaticResource TextMuted}"
+                       TextColor="{StaticResource TextPrimary}"
+                       FontSize="14" 
+                       VerticalOptions="Center" 
+                       Margin="10,0,0,0" 
+                       ReturnCommand="{Binding SendMessageCommand}"/>
+                <Button Grid.Column="1" 
+                        Text="Send" 
+                        FontAttributes="Bold" 
+                        TextColor="White" 
+                        HeightRequest="38" 
+                        WidthRequest="70" 
+                        CornerRadius="19" 
+                        BackgroundColor="#1B63C1" 
+                        Command="{Binding SendMessageCommand}" 
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource Key=InverseBoolConverter}}"/>
+            </Grid>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <ActivityIndicator Grid.Row="1" 
+                           IsRunning="{Binding IsBusy}" 
+                           IsVisible="{Binding IsBusy}" 
+                           Color="#1B63C1" 
+                           HorizontalOptions="Center" 
+                           VerticalOptions="Center" 
+                           WidthRequest="40" 
+                           HeightRequest="40" />
+
+    </Grid>
+</ContentPage>

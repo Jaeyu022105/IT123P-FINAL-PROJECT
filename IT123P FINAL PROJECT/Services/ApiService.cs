@@ -203,6 +203,22 @@ namespace IT123P_FINAL_PROJECT.Services
             }
         }
 
+        public async Task<ChatResponseDto?> SendChatMessageAsync(List<ChatMessageDto> messages)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(messages);
+                using var request = new HttpRequestMessage(HttpMethod.Post, "api/chat/message");
+                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                
+                var response = await _http.SendAsync(request);
+                if (!response.IsSuccessStatusCode) return null;
+                
+                return await response.Content.ReadFromJsonAsync<ChatResponseDto>(_json);
+            }
+            catch { return null; }
+        }
+
         // ── Internal DTOs (mirror backend shapes) ─────────────────────────────
 
         private static FoodLogEntry MapFromDto(FoodLogDto dto) => new()

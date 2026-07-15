@@ -27,6 +27,9 @@
         <Tab Title="Settings" Icon="settings_icon.png">
             <ShellContent ContentTemplate="{DataTemplate views:SettingsPage}" Route="SettingsPage" />
         </Tab>
+        <Tab Title="AI Assistant" Icon="dotnet_bot.png">
+            <ShellContent ContentTemplate="{DataTemplate views:ChatPage}" Route="ChatPage" />
+        </Tab>
     </TabBar>
 
 </Shell>

@@ -17,6 +17,12 @@ namespace IT123P_FINAL_PROJECT.ViewModels
             _api = api;
             LoggedMeals = [];
             SelectedDate = DateTime.Today;
+
+            // Subscribe to AI updates
+            MessagingCenter.Subscribe<ChatViewModel>(this, "DietGoalUpdated", async (sender) =>
+            {
+                await LoadDataAsync();
+            });
         }
 
         [ObservableProperty] private DateTime _selectedDate;
