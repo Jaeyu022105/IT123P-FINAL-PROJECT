@@ -21,6 +21,65 @@ namespace FoodLens.Api.Controllers
         private readonly string _apiUrl;
         private readonly ILogger<RecognitionController> _logger;
 
+        private static string? _cachedUserToken = null;
+        private static readonly string CacheFilePath = Path.Combine(Path.GetTempPath(), "logmeal_user_token.txt");
+
+        private async Task<string> GetActiveUserTokenAsync()
+        {
+            if (!string.IsNullOrEmpty(_cachedUserToken))
+            {
+                return _cachedUserToken;
+            }
+
+            if (System.IO.File.Exists(CacheFilePath))
+            {
+                _cachedUserToken = await System.IO.File.ReadAllTextAsync(CacheFilePath);
+                if (!string.IsNullOrEmpty(_cachedUserToken))
+                {
+                    return _cachedUserToken;
+                }
+            }
+
+            try
+            {
+                _logger.LogInformation("Attempting to register a default APIUser on LogMeal using Company token...");
+                using var signupRequest = new HttpRequestMessage(HttpMethod.Post, "https://api.logmeal.com/v2/users/signUp");
+                signupRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _userToken);
+                
+                var signupData = new { username = $"foodlens_user_{Guid.NewGuid().ToString("N")[..8]}", language = "eng" };
+                signupRequest.Content = new StringContent(JsonSerializer.Serialize(signupData), System.Text.Encoding.UTF8, "application/json");
+
+                var response = await _http.SendAsync(signupRequest);
+                if (response.IsSuccessStatusCode)
+                {
+                    var body = await response.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(body);
+                    if (doc.RootElement.TryGetProperty("token", out var tokenProp))
+                    {
+                        var token = tokenProp.GetString();
+                        if (!string.IsNullOrEmpty(token))
+                        {
+                            _cachedUserToken = token;
+                            await System.IO.File.WriteAllTextAsync(CacheFilePath, token);
+                            _logger.LogInformation("Successfully registered and cached new LogMeal APIUser token.");
+                            return token;
+                        }
+                    }
+                }
+                else
+                {
+                    var err = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("LogMeal user registration returned non-success: {Body}. Using configured token directly.", err);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed programmatically registering LogMeal APIUser. Falling back to configured token.");
+            }
+
+            return _userToken;
+        }
+
         public RecognitionController(
             IUsdaClient usda,
             HttpClient http,
@@ -60,9 +119,11 @@ namespace FoodLens.Api.Controllers
                 streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(image.ContentType ?? "image/jpeg");
                 multipartContent.Add(streamContent, "image", image.FileName);
 
+                var activeToken = await GetActiveUserTokenAsync();
+
                 // Build request to LogMeal
                 using var request = new HttpRequestMessage(HttpMethod.Post, _apiUrl);
-                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _userToken);
+                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", activeToken);
                 request.Content = multipartContent;
 
                 var response = await _http.SendAsync(request);
@@ -70,6 +131,17 @@ namespace FoodLens.Api.Controllers
                 {
                     var errorBody = await response.Content.ReadAsStringAsync();
                     _logger.LogError("LogMeal API error (Status {Status}): {Body}", response.StatusCode, errorBody);
+
+                    // If unauthorized, clear cached token so we retry registration next time
+                    if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    {
+                        _cachedUserToken = null;
+                        if (System.IO.File.Exists(CacheFilePath))
+                        {
+                            System.IO.File.Delete(CacheFilePath);
+                        }
+                    }
+
                     return StatusCode(502, new { error = new { code = "LOGMEAL_ERROR", message = "LogMeal recognition service returned an error. Try again." } });
                 }
 
@@ -80,7 +152,20 @@ namespace FoodLens.Api.Controllers
                     PropertyNameCaseInsensitive = true
                 });
 
-                if (logMealData?.RecognitionResults == null || logMealData.RecognitionResults.Count == 0)
+                var recognitionResults = logMealData?.RecognitionResults;
+                if (recognitionResults == null || recognitionResults.Count == 0)
+                {
+                    // Fallback to segmentation_results
+                    if (logMealData?.SegmentationResults != null)
+                    {
+                        recognitionResults = logMealData.SegmentationResults
+                            .Where(s => s.RecognitionResults != null)
+                            .SelectMany(s => s.RecognitionResults!)
+                            .ToList();
+                    }
+                }
+
+                if (recognitionResults == null || recognitionResults.Count == 0)
                 {
                     _logger.LogWarning("LogMeal returned zero food recognition candidates.");
                     return Ok(new List<FoodCandidateDto>());
@@ -88,7 +173,7 @@ namespace FoodLens.Api.Controllers
 
                 // Build output list and resolve each candidate name against USDA
                 var candidates = new List<FoodCandidateDto>();
-                foreach (var logMealDish in logMealData.RecognitionResults.OrderByDescending(d => d.Prob).Take(5))
+                foreach (var logMealDish in recognitionResults.OrderByDescending(d => d.Prob).Take(5))
                 {
                     var candidate = new FoodCandidateDto
                     {
@@ -137,6 +222,15 @@ namespace FoodLens.Api.Controllers
 
         // ── Internal JSON Mapping Classes ──────────────────────────────────────
         private class LogMealRecognitionResponse
+        {
+            [JsonPropertyName("recognition_results")]
+            public List<LogMealDish>? RecognitionResults { get; set; }
+
+            [JsonPropertyName("segmentation_results")]
+            public List<LogMealSegment>? SegmentationResults { get; set; }
+        }
+
+        private class LogMealSegment
         {
             [JsonPropertyName("recognition_results")]
             public List<LogMealDish>? RecognitionResults { get; set; }

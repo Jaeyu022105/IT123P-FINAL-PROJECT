@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using IT123P_FINAL_PROJECT.Models;
 using IT123P_FINAL_PROJECT.Services;
 using IT123P_FINAL_PROJECT.Views;
+using Microsoft.Maui.Graphics;
 
 namespace IT123P_FINAL_PROJECT.ViewModels
 {
@@ -84,13 +85,16 @@ namespace IT123P_FINAL_PROJECT.ViewModels
                     return;
                 }
 
-                // 4. Save to cache
+                // 4. Save to cache as JPEG
                 StatusMessage = "Processing captured image...";
-                string localFilePath = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
+                string localFilePath = Path.Combine(FileSystem.CacheDirectory, Path.ChangeExtension(photo.FileName, ".jpg"));
                 using (Stream sourceStream = await photo.OpenReadAsync())
-                using (FileStream localFileStream = File.Create(localFilePath))
                 {
-                    await sourceStream.CopyToAsync(localFileStream);
+                    var image = Microsoft.Maui.Graphics.Platform.PlatformImage.FromStream(sourceStream);
+                    using (FileStream localFileStream = File.Create(localFilePath))
+                    {
+                        image.Save(localFileStream, ImageFormat.Jpeg);
+                    }
                 }
 
                 CapturedImageSource = ImageSource.FromFile(localFilePath);
@@ -123,13 +127,16 @@ namespace IT123P_FINAL_PROJECT.ViewModels
                     return;
                 }
 
-                // Save to cache
+                // Save to cache as JPEG
                 StatusMessage = "Processing selected image...";
-                string localFilePath = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
+                string localFilePath = Path.Combine(FileSystem.CacheDirectory, Path.ChangeExtension(photo.FileName, ".jpg"));
                 using (Stream sourceStream = await photo.OpenReadAsync())
-                using (FileStream localFileStream = File.Create(localFilePath))
                 {
-                    await sourceStream.CopyToAsync(localFileStream);
+                    var image = Microsoft.Maui.Graphics.Platform.PlatformImage.FromStream(sourceStream);
+                    using (FileStream localFileStream = File.Create(localFilePath))
+                    {
+                        image.Save(localFileStream, ImageFormat.Jpeg);
+                    }
                 }
 
                 CapturedImageSource = ImageSource.FromFile(localFilePath);
