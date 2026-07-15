@@ -115,7 +115,7 @@
                         <Label Text="LEGACY DATA EXPORT" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextMuted}" CharacterSpacing="1" />
                         <Label Text="Export your daily diet summaries to external SOAP/XML-based clinical databases (e.g. dietitian clinical systems)." FontSize="12" TextColor="{StaticResource TextMuted}" />
                         
-                        <Button Text="Export logs (Phase 5)" 
+                        <Button Text="Export logs" 
                                 Command="{Binding ExportLogsCommand}"
                                 BackgroundColor="{StaticResource Berry}" 
                                 TextColor="{StaticResource Surface}" 

@@ -151,9 +151,12 @@
                                     </VerticalStackLayout>
                                     <HorizontalStackLayout Grid.Column="1" Spacing="10" VerticalOptions="Center">
                                         <Label Text="{Binding Calories, StringFormat='{0:F0} kcal'}" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource Berry}" VerticalOptions="Center" />
-                                        <Button Text="&#x1F5D1;&#xFE0F;" BackgroundColor="Transparent" TextColor="{StaticResource Danger}" FontSize="16" HeightRequest="36" WidthRequest="36" Padding="0" VerticalOptions="Center"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:DietSummaryViewModel}}, Path=DeleteLogEntryCommand}"
-                                                CommandParameter="{Binding .}" />
+                                        <Image Source="trash_icon.png" HeightRequest="16" WidthRequest="16" VerticalOptions="Center">
+                                            <Image.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:DietSummaryViewModel}}, Path=DeleteLogEntryCommand}"
+                                                                      CommandParameter="{Binding .}" />
+                                            </Image.GestureRecognizers>
+                                        </Image>
                                     </HorizontalStackLayout>
                                 </Grid>
                             </Border>
