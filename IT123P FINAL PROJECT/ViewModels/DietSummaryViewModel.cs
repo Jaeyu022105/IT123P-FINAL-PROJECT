@@ -23,6 +23,11 @@ namespace IT123P_FINAL_PROJECT.ViewModels
             {
                 await LoadDataAsync();
             });
+
+            MessagingCenter.Subscribe<PortionViewModel>(this, "FoodLogSaved", async (sender) =>
+            {
+                await LoadDataAsync();
+            });
         }
 
         [ObservableProperty] private DateTime _selectedDate;
@@ -65,7 +70,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
 
             // ── 3. Fetch authoritative list from backend & refresh local cache ─
             var serverLogs = await _api.GetFoodLogsAsync(SelectedDate);
-            if (serverLogs.Count > 0 || IsOnline())
+            if (serverLogs.Count > 0)
                 await _db.RefreshLogsFromServerAsync(serverLogs, SelectedDate);
 
             // ── 4. Read final list from local DB (works offline too) ──────────

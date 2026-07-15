@@ -168,16 +168,27 @@ namespace IT123P_FINAL_PROJECT.ViewModels
             // 1. Save locally first (always succeeds)
             await _db.SaveFoodLogEntryAsync(entry);
 
-            // 2. Try to push to backend
-            int serverId = await _api.CreateFoodLogAsync(entry);
-            if (serverId > 0)
+            // 2. Try to push to backend (don't block navigation on failure)
+            try
             {
-                entry.ServerId = serverId;
-                entry.IsSynced = true;
-                await _db.SaveFoodLogEntryAsync(entry); // update with ServerId
+                int serverId = await _api.CreateFoodLogAsync(entry);
+                if (serverId > 0)
+                {
+                    entry.ServerId = serverId;
+                    entry.IsSynced = true;
+                    await _db.SaveFoodLogEntryAsync(entry); // update with ServerId
+                }
+            }
+            catch
+            {
+                // Swallow – entry is saved locally; will sync later
             }
 
-            await Shell.Current.GoToAsync("///MainPage");
+            MessagingCenter.Send(this, "FoodLogSaved");
+
+            // Leave the portion screen first so the Log Food tab returns to a clean root page.
+            await Shell.Current.GoToAsync("..");
+            await Shell.Current.GoToAsync("///DietSummaryPage");
         }
 
         [RelayCommand]

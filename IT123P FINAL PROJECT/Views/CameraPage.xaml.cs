@@ -9,5 +9,15 @@ namespace IT123P_FINAL_PROJECT.Views
             InitializeComponent();
             BindingContext = viewModel;
         }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+
+            if (BindingContext is CameraViewModel viewModel)
+            {
+                viewModel.ResetSearchState();
+            }
+        }
     }
 }
