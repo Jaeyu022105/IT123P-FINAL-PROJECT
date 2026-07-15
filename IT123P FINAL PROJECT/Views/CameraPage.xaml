@@ -6,18 +6,18 @@
              x:Class="IT123P_FINAL_PROJECT.Views.CameraPage"
              x:DataType="viewmodels.CameraViewModel"
              Title="Log Food"
-             BackgroundColor="#F5F5FA">
+             BackgroundColor="{StaticResource Canvas}">
 
     <Grid RowDefinitions="Auto, *, Auto">
         
         <!-- Header -->
-        <Border Grid.Row="0" Padding="20,15" StrokeThickness="0" BackgroundColor="#FFFFFF">
+        <Border Grid.Row="0" Padding="20,15" StrokeThickness="0" BackgroundColor="{StaticResource Surface}">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="0,0,16,16" />
             </Border.StrokeShape>
             <VerticalStackLayout Spacing="2">
-                <Label Text="Identify Food" FontSize="22" FontAttributes="Bold" TextColor="#6C4AB6" />
-                <Label Text="Snap a photo or type manually" FontSize="12" TextColor="#7E7E8F" />
+                <Label Text="Identify Food" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource Plum}" />
+                <Label Text="Snap a photo or type manually" FontSize="12" TextColor="{StaticResource TextMuted}" />
             </VerticalStackLayout>
         </Border>
 
@@ -27,22 +27,22 @@
             <!-- Camera Simulation Box or Candidate List -->
             <Grid Grid.Row="0">
                 <!-- Camera viewfinder placeholder (Only visible if NOT showing candidates) -->
-                <Border StrokeThickness="0" BackgroundColor="#1E1E24" Margin="0,0,0,10" IsVisible="{Binding ShowViewfinder}" HeightRequest="320" VerticalOptions="FillAndExpand">
+                <Border StrokeThickness="0" BackgroundColor="{StaticResource Viewfinder}" Margin="0,0,0,10" IsVisible="{Binding ShowViewfinder}" HeightRequest="320" VerticalOptions="FillAndExpand">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="18" />
                     </Border.StrokeShape>
                     <Grid RowDefinitions="*, Auto">
                         <!-- Simulated Camera View -->
                         <VerticalStackLayout Grid.Row="0" VerticalOptions="Center" HorizontalOptions="Center" Spacing="15">
-                            <Label Text="📷" FontSize="64" HorizontalOptions="Center" />
-                            <Label Text="Camera Viewfinder Active" FontSize="16" FontAttributes="Bold" TextColor="#E2D9F3" HorizontalOptions="Center" />
-                            <Label Text="Point camera at your meal and tap Capture" FontSize="12" TextColor="#A799C7" HorizontalOptions="Center" />
+                            <Label Text="&#x1F4F7;" FontSize="64" HorizontalOptions="Center" />
+                            <Label Text="Camera Viewfinder Active" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource PlumLight}" HorizontalOptions="Center" />
+                            <Label Text="Point camera at your meal and tap Capture" FontSize="12" TextColor="{StaticResource Sage}" HorizontalOptions="Center" />
                         </VerticalStackLayout>
                         
                         <!-- Actions overlay on viewfinder -->
                         <HorizontalStackLayout Grid.Row="1" Spacing="10" HorizontalOptions="Center" Margin="0,0,0,20">
-                            <Button Text="Gallery" BackgroundColor="#33FFFFFF" TextColor="#FFFFFF" CornerRadius="18" WidthRequest="110" Command="{Binding PickFromGalleryCommand}" />
-                            <Button Text="Snap Photo" BackgroundColor="#F06292" TextColor="#FFFFFF" CornerRadius="18" WidthRequest="140" FontAttributes="Bold" Command="{Binding CapturePhotoCommand}" />
+                            <Button Text="Gallery" BackgroundColor="{StaticResource Glass}" TextColor="{StaticResource Surface}" CornerRadius="18" WidthRequest="110" Command="{Binding PickFromGalleryCommand}" />
+                            <Button Text="Snap Photo" BackgroundColor="{StaticResource Berry}" TextColor="{StaticResource Surface}" CornerRadius="18" WidthRequest="140" FontAttributes="Bold" Command="{Binding CapturePhotoCommand}" />
                         </HorizontalStackLayout>
                     </Grid>
                 </Border>
@@ -50,10 +50,10 @@
                 <!-- Recognition Results Cards (Only visible if showing candidates) -->
                 <ScrollView IsVisible="{Binding ShowCandidates}" VerticalScrollBarVisibility="Never">
                     <VerticalStackLayout Spacing="12">
-                        <Label Text="Recognized Food Candidates" FontAttributes="Bold" FontSize="15" TextColor="#222222" Margin="0,5,0,0" />
+                        <Label Text="Recognized Food Candidates" FontAttributes="Bold" FontSize="15" TextColor="{StaticResource TextPrimary}" Margin="0,5,0,0" />
                         
                         <!-- Captured Image Preview -->
-                        <Border StrokeThickness="0" HeightRequest="180" BackgroundColor="#E2D9F3" Margin="0,0,0,5" HorizontalOptions="FillAndExpand">
+                        <Border StrokeThickness="0" HeightRequest="180" BackgroundColor="{StaticResource PlumLight}" Margin="0,0,0,5" HorizontalOptions="FillAndExpand">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="16" />
                             </Border.StrokeShape>
@@ -63,17 +63,17 @@
                         <VerticalStackLayout BindableLayout.ItemsSource="{Binding Candidates}" Spacing="10">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models.FoodCandidate">
-                                    <Border StrokeThickness="0" Padding="16,14" BackgroundColor="#FFFFFF">
+                                    <Border StrokeThickness="0" Padding="16,14" BackgroundColor="{StaticResource Surface}">
                                         <Border.StrokeShape>
                                             <RoundRectangle CornerRadius="14" />
                                         </Border.StrokeShape>
                                         <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
                                             <VerticalStackLayout Grid.Column="0" Spacing="4">
-                                                <Label Text="{Binding Name}" FontSize="15" FontAttributes="Bold" TextColor="#222222" />
-                                                <Label Text="{Binding ConfidenceText}" FontSize="11" TextColor="#6C4AB6" FontAttributes="Bold" />
-                                                <Label Text="{Binding CaloriesPer100g, StringFormat='Base Nutrition: {0:F0} kcal per 100g'}" FontSize="11" TextColor="#7E7E8F" />
+                                                <Label Text="{Binding Name}" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                                <Label Text="{Binding ConfidenceText}" FontSize="11" TextColor="{StaticResource Plum}" FontAttributes="Bold" />
+                                                <Label Text="{Binding CaloriesPer100g, StringFormat='Base Nutrition: {0:F0} kcal per 100g'}" FontSize="11" TextColor="{StaticResource TextMuted}" />
                                             </VerticalStackLayout>
-                                            <Button Grid.Column="1" Text="Select" BackgroundColor="#6C4AB6" TextColor="#FFFFFF" CornerRadius="10" HeightRequest="36" Padding="15,0" VerticalOptions="Center"
+                                            <Button Grid.Column="1" Text="Select" BackgroundColor="{StaticResource Plum}" TextColor="{StaticResource Surface}" CornerRadius="10" HeightRequest="36" Padding="15,0" VerticalOptions="Center"
                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:CameraViewModel}}, Path=SelectCandidateCommand}"
                                                     CommandParameter="{Binding .}" />
                                         </Grid>
@@ -83,35 +83,35 @@
                         </VerticalStackLayout>
 
                         <!-- Back to camera -->
-                        <Button Text="← Back to Camera View" BackgroundColor="Transparent" TextColor="#6C4AB6" FontAttributes="Bold" HeightRequest="45" Margin="0,10,0,0" Command="{Binding PickFromGalleryCommand}" />
+                        <Button Text="&#x2190; Back to Camera View" BackgroundColor="Transparent" TextColor="{StaticResource Plum}" FontAttributes="Bold" HeightRequest="45" Margin="0,10,0,0" Command="{Binding PickFromGalleryCommand}" />
                     </VerticalStackLayout>
                 </ScrollView>
             </Grid>
 
             <!-- Manual Search Panel (Always at the bottom of the work area) -->
-            <Border Grid.Row="1" StrokeThickness="0" Padding="16" BackgroundColor="#FFFFFF">
+            <Border Grid.Row="1" StrokeThickness="0" Padding="16" BackgroundColor="{StaticResource Surface}">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="14" />
                 </Border.StrokeShape>
                 <VerticalStackLayout Spacing="10">
-                    <Label Text="Or Search Manually" FontSize="13" FontAttributes="Bold" TextColor="#7E7E8F" />
+                    <Label Text="Or Search Manually" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextMuted}" />
                     <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
-                        <Entry Grid.Column="0" Placeholder="Type food name (e.g. Rice, Oats...)" Text="{Binding SearchQuery}" BackgroundColor="#F5F5FA" PlaceholderColor="#A3A3B3" FontSize="14" HeightRequest="42" ClearButtonVisibility="WhileEditing" />
-                        <Button Grid.Column="1" Text="Search" BackgroundColor="#8D72E1" TextColor="#FFFFFF" CornerRadius="8" HeightRequest="42" Padding="20,0" FontAttributes="Bold" Command="{Binding ManualSearchCommand}" />
+                        <Entry Grid.Column="0" Placeholder="Type food name (e.g. Rice, Oats...)" Text="{Binding SearchQuery}" BackgroundColor="{StaticResource Canvas}" PlaceholderColor="{StaticResource TextSubtle}" FontSize="14" HeightRequest="42" ClearButtonVisibility="WhileEditing" />
+                        <Button Grid.Column="1" Text="Search" BackgroundColor="{StaticResource Leaf}" TextColor="{StaticResource Surface}" CornerRadius="8" HeightRequest="42" Padding="20,0" FontAttributes="Bold" Command="{Binding ManualSearchCommand}" />
                     </Grid>
                 </VerticalStackLayout>
             </Border>
         </Grid>
 
         <!-- Loading Overlay (Visible during analysis) -->
-        <Grid Grid.RowSpan="3" BackgroundColor="#80000000" IsVisible="{Binding IsBusy}">
-            <Border StrokeThickness="0" Padding="30,24" BackgroundColor="#FFFFFF" HorizontalOptions="Center" VerticalOptions="Center">
+        <Grid Grid.RowSpan="3" BackgroundColor="{StaticResource Overlay}" IsVisible="{Binding IsBusy}">
+            <Border StrokeThickness="0" Padding="30,24" BackgroundColor="{StaticResource Surface}" HorizontalOptions="Center" VerticalOptions="Center">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="16" />
                 </Border.StrokeShape>
                 <VerticalStackLayout Spacing="15" HorizontalOptions="Center">
-                    <ActivityIndicator IsRunning="{Binding IsBusy}" Color="#6C4AB6" WidthRequest="40" HeightRequest="40" HorizontalOptions="Center" />
-                    <Label Text="{Binding StatusMessage}" FontSize="14" FontAttributes="Bold" TextColor="#222222" HorizontalOptions="Center" />
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" Color="{StaticResource Plum}" WidthRequest="40" HeightRequest="40" HorizontalOptions="Center" />
+                    <Label Text="{Binding StatusMessage}" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalOptions="Center" />
                 </VerticalStackLayout>
             </Border>
         </Grid>

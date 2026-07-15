@@ -5,7 +5,14 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:IT123P_FINAL_PROJECT"
     xmlns:views="clr-namespace:IT123P_FINAL_PROJECT.Views"
-    Title="FoodLens">
+    Title="FoodLens"
+    BackgroundColor="{StaticResource Canvas}"
+    Shell.BackgroundColor="{StaticResource Surface}"
+    Shell.ForegroundColor="{StaticResource Forest}"
+    Shell.TitleColor="{StaticResource Forest}"
+    Shell.TabBarBackgroundColor="{StaticResource Surface}"
+    Shell.TabBarForegroundColor="{StaticResource Forest}"
+    Shell.TabBarUnselectedColor="{StaticResource TextMuted}">
 
     <TabBar>
         <Tab Title="Home">

@@ -5,18 +5,18 @@
              x:Class="IT123P_FINAL_PROJECT.Views.PortionPage"
              x:DataType="viewmodels.PortionViewModel"
              Title="Confirm Portion"
-             BackgroundColor="#F5F5FA">
+             BackgroundColor="{StaticResource Canvas}">
 
     <Grid RowDefinitions="Auto, *, Auto">
         
         <!-- Header -->
-        <Border Grid.Row="0" Padding="20,15" StrokeThickness="0" BackgroundColor="#FFFFFF">
+        <Border Grid.Row="0" Padding="20,15" StrokeThickness="0" BackgroundColor="{StaticResource Surface}">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="0,0,16,16" />
             </Border.StrokeShape>
             <VerticalStackLayout Spacing="2">
-                <Label Text="Portion &amp; Nutrition" FontSize="22" FontAttributes="Bold" TextColor="#6C4AB6" />
-                <Label Text="Adjust grams to fit your budget" FontSize="12" TextColor="#7E7E8F" />
+                <Label Text="Portion &amp; Nutrition" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource Plum}" />
+                <Label Text="Adjust grams to fit your budget" FontSize="12" TextColor="{StaticResource TextMuted}" />
             </VerticalStackLayout>
         </Border>
 
@@ -25,29 +25,29 @@
             <VerticalStackLayout Padding="20" Spacing="20">
                 
                 <!-- Food Name Card -->
-                <Border StrokeThickness="0" Padding="20" BackgroundColor="#FFFFFF">
+                <Border StrokeThickness="0" Padding="20" BackgroundColor="{StaticResource Surface}">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="16" />
                     </Border.StrokeShape>
                     <Grid ColumnDefinitions="*, Auto">
                         <VerticalStackLayout Grid.Column="0" Spacing="5">
-                            <Label Text="SELECTED FOOD" FontSize="10" FontAttributes="Bold" TextColor="#7E7E8F" CharacterSpacing="1" />
-                            <Label Text="{Binding Candidate.Name}" FontSize="20" FontAttributes="Bold" TextColor="#222222" />
+                            <Label Text="SELECTED FOOD" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextMuted}" CharacterSpacing="1" />
+                            <Label Text="{Binding Candidate.Name}" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
                         </VerticalStackLayout>
-                        <Border Grid.Column="1" StrokeThickness="0" Padding="10,6" BackgroundColor="#E8F5E9" VerticalOptions="Center">
+                        <Border Grid.Column="1" StrokeThickness="0" Padding="10,6" BackgroundColor="{StaticResource SageLight}" VerticalOptions="Center">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="8" />
                             </Border.StrokeShape>
                             <VerticalStackLayout Spacing="1">
-                                <Label Text="{Binding RemainingCaloriesBefore, StringFormat='{0:F0} kcal'}" FontSize="12" FontAttributes="Bold" TextColor="#2E7D32" HorizontalOptions="Center" />
-                                <Label Text="budget left" FontSize="9" TextColor="#4CAF50" HorizontalOptions="Center" />
+                                <Label Text="{Binding RemainingCaloriesBefore, StringFormat='{0:F0} kcal'}" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Forest}" HorizontalOptions="Center" />
+                                <Label Text="budget left" FontSize="9" TextColor="{StaticResource Leaf}" HorizontalOptions="Center" />
                             </VerticalStackLayout>
                         </Border>
                     </Grid>
                 </Border>
 
                 <!-- Dynamic Nutrition Card -->
-                <Border StrokeThickness="0" Padding="24" BackgroundColor="#6C4AB6">
+                <Border StrokeThickness="0" Padding="24" BackgroundColor="{StaticResource Plum}">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="18" />
                     </Border.StrokeShape>
@@ -55,34 +55,34 @@
                         
                         <!-- Calories -->
                         <VerticalStackLayout Grid.Row="0" Spacing="2" HorizontalOptions="Center">
-                            <Label Text="ESTIMATED NUTRITION" FontSize="10" FontAttributes="Bold" TextColor="#E2D9F3" HorizontalOptions="Center" CharacterSpacing="1" />
+                            <Label Text="ESTIMATED NUTRITION" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource PlumLight}" HorizontalOptions="Center" CharacterSpacing="1" />
                             <HorizontalStackLayout Spacing="4" HorizontalOptions="Center">
-                                <Label Text="{Binding Calories, StringFormat='{0:F0}'}" FontSize="36" FontAttributes="Bold" TextColor="#FFFFFF" />
-                                <Label Text="kcal" FontSize="16" TextColor="#D1C4E9" VerticalOptions="Center" Margin="0,0,0,5" />
+                                <Label Text="{Binding Calories, StringFormat='{0:F0}'}" FontSize="36" FontAttributes="Bold" TextColor="{StaticResource Surface}" />
+                                <Label Text="kcal" FontSize="16" TextColor="{StaticResource PlumLight}" VerticalOptions="Center" Margin="0,0,0,5" />
                             </HorizontalStackLayout>
                         </VerticalStackLayout>
 
-                        <BoxView Grid.Row="1" HeightRequest="1" BackgroundColor="#33FFFFFF" Margin="10,0" />
+                        <BoxView Grid.Row="1" HeightRequest="1" BackgroundColor="{StaticResource Glass}" Margin="10,0" />
 
                         <!-- Macro Details Grid -->
                         <Grid Grid.Row="2" ColumnDefinitions="*, *, *" ColumnSpacing="10">
                             
                             <!-- Protein -->
                             <VerticalStackLayout Grid.Column="0" Spacing="2" HorizontalOptions="Center">
-                                <Label Text="Protein" FontSize="11" TextColor="#D1C4E9" HorizontalOptions="Center" />
-                                <Label Text="{Binding Protein, StringFormat='{0:F1}g'}" FontSize="16" FontAttributes="Bold" TextColor="#FFFFFF" HorizontalOptions="Center" />
+                                <Label Text="Protein" FontSize="11" TextColor="{StaticResource PlumLight}" HorizontalOptions="Center" />
+                                <Label Text="{Binding Protein, StringFormat='{0:F1}g'}" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource Surface}" HorizontalOptions="Center" />
                             </VerticalStackLayout>
 
                             <!-- Carbs -->
                             <VerticalStackLayout Grid.Column="1" Spacing="2" HorizontalOptions="Center">
-                                <Label Text="Carbs" FontSize="11" TextColor="#D1C4E9" HorizontalOptions="Center" />
-                                <Label Text="{Binding Carbs, StringFormat='{0:F1}g'}" FontSize="16" FontAttributes="Bold" TextColor="#FFFFFF" HorizontalOptions="Center" />
+                                <Label Text="Carbs" FontSize="11" TextColor="{StaticResource PlumLight}" HorizontalOptions="Center" />
+                                <Label Text="{Binding Carbs, StringFormat='{0:F1}g'}" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource Surface}" HorizontalOptions="Center" />
                             </VerticalStackLayout>
 
                             <!-- Fat -->
                             <VerticalStackLayout Grid.Column="2" Spacing="2" HorizontalOptions="Center">
-                                <Label Text="Fat" FontSize="11" TextColor="#D1C4E9" HorizontalOptions="Center" />
-                                <Label Text="{Binding Fat, StringFormat='{0:F1}g'}" FontSize="16" FontAttributes="Bold" TextColor="#FFFFFF" HorizontalOptions="Center" />
+                                <Label Text="Fat" FontSize="11" TextColor="{StaticResource PlumLight}" HorizontalOptions="Center" />
+                                <Label Text="{Binding Fat, StringFormat='{0:F1}g'}" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource Surface}" HorizontalOptions="Center" />
                             </VerticalStackLayout>
 
                         </Grid>
@@ -90,35 +90,35 @@
                 </Border>
 
                 <!-- Portion Slider Card -->
-                <Border StrokeThickness="0" Padding="20" BackgroundColor="#FFFFFF">
+                <Border StrokeThickness="0" Padding="20" BackgroundColor="{StaticResource Surface}">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="16" />
                     </Border.StrokeShape>
                     <VerticalStackLayout Spacing="15">
                         
                         <Grid ColumnDefinitions="*, Auto">
-                            <Label Grid.Column="0" Text="Adjust Serving Size" FontSize="14" FontAttributes="Bold" TextColor="#222222" VerticalOptions="Center" />
-                            <Label Grid.Column="1" Text="{Binding Grams, StringFormat='{0:F0} g'}" FontSize="16" FontAttributes="Bold" TextColor="#F06292" VerticalOptions="Center" />
+                            <Label Grid.Column="0" Text="Adjust Serving Size" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="{Binding Grams, StringFormat='{0:F0} g'}" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource Berry}" VerticalOptions="Center" />
                         </Grid>
 
                         <!-- Slider -->
-                        <Slider Minimum="10" Maximum="800" Value="{Binding Grams}" MinimumTrackColor="#6C4AB6" MaximumTrackColor="#E2D9F3" ThumbColor="#F06292" />
+                        <Slider Minimum="10" Maximum="800" Value="{Binding Grams}" MinimumTrackColor="{StaticResource Plum}" MaximumTrackColor="{StaticResource PlumLight}" ThumbColor="{StaticResource Berry}" />
 
                         <!-- Preset Chips -->
                         <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10" Margin="0,5,0,0">
-                            <Button Grid.Column="0" Text="Small (100g)" BackgroundColor="#F5F5FA" TextColor="#6C4AB6" CornerRadius="8" HeightRequest="36" Padding="0" FontSize="12" Command="{Binding SelectPresetCommand}" CommandParameter="small" />
-                            <Button Grid.Column="1" Text="Medium (200g)" BackgroundColor="#F5F5FA" TextColor="#6C4AB6" CornerRadius="8" HeightRequest="36" Padding="0" FontSize="12" Command="{Binding SelectPresetCommand}" CommandParameter="medium" />
-                            <Button Grid.Column="2" Text="Large (350g)" BackgroundColor="#F5F5FA" TextColor="#6C4AB6" CornerRadius="8" HeightRequest="36" Padding="0" FontSize="12" Command="{Binding SelectPresetCommand}" CommandParameter="large" />
+                            <Button Grid.Column="0" Text="Small (100g)" BackgroundColor="{StaticResource Canvas}" TextColor="{StaticResource Plum}" CornerRadius="8" HeightRequest="36" Padding="0" FontSize="12" Command="{Binding SelectPresetCommand}" CommandParameter="small" />
+                            <Button Grid.Column="1" Text="Medium (200g)" BackgroundColor="{StaticResource Canvas}" TextColor="{StaticResource Plum}" CornerRadius="8" HeightRequest="36" Padding="0" FontSize="12" Command="{Binding SelectPresetCommand}" CommandParameter="medium" />
+                            <Button Grid.Column="2" Text="Large (350g)" BackgroundColor="{StaticResource Canvas}" TextColor="{StaticResource Plum}" CornerRadius="8" HeightRequest="36" Padding="0" FontSize="12" Command="{Binding SelectPresetCommand}" CommandParameter="large" />
                         </Grid>
 
                         <!-- Projected budget progress bar -->
-                        <BoxView HeightRequest="1" BackgroundColor="#E5E5EA" Margin="0,10,0,5" />
+                        <BoxView HeightRequest="1" BackgroundColor="{StaticResource Border}" Margin="0,10,0,5" />
                         <VerticalStackLayout Spacing="6">
                             <Grid ColumnDefinitions="*, Auto">
-                                <Label Grid.Column="0" Text="Projected Daily Total" FontSize="12" TextColor="#7E7E8F" />
-                                <Label Grid.Column="1" Text="{Binding ProjectedCalories, StringFormat='{0:F0} kcal'}" FontSize="12" FontAttributes="Bold" TextColor="#222222" />
+                                <Label Grid.Column="0" Text="Projected Daily Total" FontSize="12" TextColor="{StaticResource TextMuted}" />
+                                <Label Grid.Column="1" Text="{Binding ProjectedCalories, StringFormat='{0:F0} kcal'}" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
                             </Grid>
-                            <ProgressBar Progress="{Binding ProjectedProgress}" ProgressColor="#F06292" HeightRequest="6" ScaleY="2.0" />
+                            <ProgressBar Progress="{Binding ProjectedProgress}" ProgressColor="{StaticResource Berry}" HeightRequest="6" ScaleY="2.0" />
                         </VerticalStackLayout>
 
                     </VerticalStackLayout>
@@ -130,8 +130,8 @@
                         <RoundRectangle CornerRadius="12" />
                     </Border.StrokeShape>
                     <Grid ColumnDefinitions="Auto, *">
-                        <Label Grid.Column="0" Text="📊" FontSize="18" VerticalOptions="Center" Margin="0,0,10,0" />
-                        <Label Grid.Column="1" Text="{Binding FitsDietText}" FontSize="14" FontAttributes="Bold" TextColor="#FFFFFF" VerticalOptions="Center" />
+                        <Label Grid.Column="0" Text="&#x1F4CA;" FontSize="18" VerticalOptions="Center" Margin="0,0,10,0" />
+                        <Label Grid.Column="1" Text="{Binding FitsDietText}" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource Surface}" VerticalOptions="Center" />
                     </Grid>
                 </Border>
 
@@ -139,9 +139,9 @@
         </ScrollView>
 
         <!-- Actions -->
-        <Grid Grid.Row="2" ColumnDefinitions="*, *" ColumnSpacing="12" Padding="20,10,20,20" BackgroundColor="#FFFFFF">
-            <Button Grid.Column="0" Text="Cancel" BackgroundColor="#F5F5FA" TextColor="#7E7E8F" CornerRadius="12" HeightRequest="50" FontAttributes="Bold" Command="{Binding CancelCommand}" />
-            <Button Grid.Column="1" Text="Add to Diet Log" BackgroundColor="#F06292" TextColor="#FFFFFF" CornerRadius="12" HeightRequest="50" FontAttributes="Bold" Command="{Binding SaveLogEntryCommand}" />
+        <Grid Grid.Row="2" ColumnDefinitions="*, *" ColumnSpacing="12" Padding="20,10,20,20" BackgroundColor="{StaticResource Surface}">
+            <Button Grid.Column="0" Text="Cancel" BackgroundColor="{StaticResource Canvas}" TextColor="{StaticResource TextMuted}" CornerRadius="12" HeightRequest="50" FontAttributes="Bold" Command="{Binding CancelCommand}" />
+            <Button Grid.Column="1" Text="Add to Diet Log" BackgroundColor="{StaticResource Berry}" TextColor="{StaticResource Surface}" CornerRadius="12" HeightRequest="50" FontAttributes="Bold" Command="{Binding SaveLogEntryCommand}" />
         </Grid>
 
     </Grid>

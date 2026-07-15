@@ -19,17 +19,15 @@ namespace IT123P_FINAL_PROJECT.ViewModels
             SelectedDayMeals = [];
             _selectedDay = DateTime.Today;
         }
-
-        // ── Observable State ──────────────────────────────────────────────────
+        // Observable state
 
         [ObservableProperty] private bool   _isLoading;
         [ObservableProperty] private bool   _hasData;
         [ObservableProperty] private double _averageCalories;
-        [ObservableProperty] private string _bestDayText    = "–";
-        [ObservableProperty] private string _worstDayText   = "–";
+        [ObservableProperty] private string _bestDayText    = "-";
+        [ObservableProperty] private string _worstDayText   = "-";
         [ObservableProperty] private string _selectedDayHeader = "Today";
         [ObservableProperty] private DateTime _selectedDay;
-
         // Macro split widths (0..1) for the pill chart
         [ObservableProperty] private double _proteinFrac = 0.33;
         [ObservableProperty] private double _carbsFrac   = 0.34;
@@ -40,25 +38,22 @@ namespace IT123P_FINAL_PROJECT.ViewModels
 
         /// <summary>Meals for the currently selected day (drill-down).</summary>
         public ObservableCollection<FoodLogEntry> SelectedDayMeals { get; }
-
-        // ── Bar Chart Entry ───────────────────────────────────────────────────
-
-        /// <summary>Single bar in the weekly chart — fully bindable.</summary>
+        // Bar chart entry
+        /// <summary>Single bar in the weekly chart, fully bindable.</summary>
         public partial class BarEntry : ObservableObject
         {
             public DateTime Date { get; init; }
             public string DayLabel  { get; init; } = string.Empty;
             public string DateLabel { get; init; } = string.Empty;
             public double Calories  { get; init; }
-            public string CalLabel  => Calories > 0 ? $"{Calories:F0}" : "–";
+            public string CalLabel  => Calories > 0 ? $"{Calories:F0}" : "-";
             [ObservableProperty] private bool _isSelected;
             /// <summary>Pixel height for the bar (max 160px).</summary>
             public double BarHeight { get; init; }
-            /// <summary>Color string for the bar fill — interpolated purple→pink.</summary>
-            public string BarColor  { get; init; } = "#6C4AB6";
+            /// <summary>Color string for the bar fill, interpolated from plum to berry.</summary>
+            public string BarColor  { get; init; } = ThemeColors.Plum;
         }
-
-        // ── Commands ──────────────────────────────────────────────────────────
+        // Commands
 
         [RelayCommand]
         public async Task LoadWeekAsync()
@@ -98,25 +93,22 @@ namespace IT123P_FINAL_PROJECT.ViewModels
 
             var summary = new WeeklyNutritionSummary(totals);
             HasData = summary.TotalCalories > 0;
-
-            // ── Summary stats ──────────────────────────────────────────────
+            // Summary stats
             AverageCalories = Math.Round(summary.AverageCalories, 0);
-            BestDayText  = summary.BestDay  is { } b ? $"{b.DayLabel}\n{b.Calories:F0} kcal" : "–";
-            WorstDayText = summary.WorstDay is { } w ? $"{w.DayLabel}\n{w.Calories:F0} kcal" : "–";
-
-            // ── Macro split ────────────────────────────────────────────────
+            BestDayText  = summary.BestDay  is { } b ? $"{b.DayLabel}\n{b.Calories:F0} kcal" : "-";
+            WorstDayText = summary.WorstDay is { } w ? $"{w.DayLabel}\n{w.Calories:F0} kcal" : "-";
+            // Macro split
             var (pf, cf, ff) = summary.MacroSplit();
             ProteinFrac = pf;
             CarbsFrac   = cf;
             FatFrac     = ff;
-
-            // ── Bar chart entries ──────────────────────────────────────────
+            // Bar chart entries
             const double MaxBarHeight = 160.0;
             WeeklyBars.Clear();
             foreach (var t in totals)
             {
                 double norm = summary.NormalizedHeight(t);
-                // Interpolate color: low = #6C4AB6 (purple), high = #F06292 (pink)
+                // Interpolate color: low = plum, high = berry
                 string color = InterpolateColor(norm);
                 WeeklyBars.Add(new BarEntry
                 {
@@ -129,8 +121,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
                     IsSelected = t.Date.Date == SelectedDay.Date
                 });
             }
-
-            // ── Drill-down for selected day ────────────────────────────────
+            // Drill-down for the selected day
             await LoadDayMealsAsync(SelectedDay);
 
             IsLoading = false;
@@ -148,8 +139,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
 
             await LoadDayMealsAsync(bar.Date);
         }
-
-        // ── Private Helpers ───────────────────────────────────────────────────
+        // Private helpers
 
         private async Task LoadDayMealsAsync(DateTime day)
         {
@@ -164,16 +154,15 @@ namespace IT123P_FINAL_PROJECT.ViewModels
         }
 
         /// <summary>
-        /// Linear interpolation between purple (#6C4AB6) and pink (#F06292) based on
-        /// a normalized 0–1 intensity value. Returns a hex colour string.
+        /// Linear interpolation between the plum and berry theme accents based on
+        /// a normalized 0-1 intensity value. Returns a hex colour string.
         /// </summary>
         private static string InterpolateColor(double t)
         {
-            // Low:  R=108 G=74  B=182
-            // High: R=240 G=98  B=146
-            int r = (int)(108 + (240 - 108) * t);
-            int g = (int)(74  + (98  - 74)  * t);
-            int b = (int)(182 + (146 - 182) * t);
+            // Low: plum (#725A7A); high: berry (#B9505A).
+            int r = (int)(114 + (185 - 114) * t);
+            int g = (int)(90  + (80  - 90)  * t);
+            int b = (int)(122 + (90  - 122) * t);
             return $"#{r:X2}{g:X2}{b:X2}";
         }
     }

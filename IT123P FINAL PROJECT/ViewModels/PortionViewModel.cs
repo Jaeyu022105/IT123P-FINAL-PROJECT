@@ -33,7 +33,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
         [ObservableProperty] private double _projectedProgress;
         [ObservableProperty] private bool _fitsDiet;
         [ObservableProperty] private string _fitsDietText = string.Empty;
-        [ObservableProperty] private string _fitsDietColor = "#4CAF50";
+        [ObservableProperty] private string _fitsDietColor = ThemeColors.Leaf;
 
         partial void OnCandidateChanged(FoodCandidate? value) => _ = RefreshNutritionAsync();
         partial void OnGramsChanged(double value)             => _ = RefreshNutritionAsync();
@@ -129,7 +129,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
             FitsDietText         = fits
                 ? $"Fits your remaining budget! ({remaining:F0} kcal left)"
                 : message;
-            FitsDietColor        = fits ? "#2E7D32" : "#D84315";
+            FitsDietColor        = fits ? ThemeColors.Forest : ThemeColors.Danger;
         }
 
         // ── Preset portions ───────────────────────────────────────────────────

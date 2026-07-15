@@ -40,8 +40,8 @@ namespace IT123P_FINAL_PROJECT.Converters
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             if (value is bool isSelected && isSelected)
-                return Color.FromArgb("#6C4AB6"); // Selected color (Purple)
-            return Color.FromArgb("#7E7E8F");     // Default gray color
+                return Color.FromArgb(ThemeColors.Plum);
+            return Color.FromArgb(ThemeColors.TextMuted);
         }
 
         public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
