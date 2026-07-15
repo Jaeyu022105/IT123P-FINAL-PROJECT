@@ -34,7 +34,7 @@
                     <Grid RowDefinitions="*, Auto">
                         <!-- Simulated Camera View -->
                         <VerticalStackLayout Grid.Row="0" VerticalOptions="Center" HorizontalOptions="Center" Spacing="15">
-                            <Label Text="&#x1F4F7;" FontSize="64" HorizontalOptions="Center" />
+                            <Image Source="camera_icon.png" HeightRequest="64" WidthRequest="64" HorizontalOptions="Center" />
                             <Label Text="Camera Viewfinder Active" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource PlumLight}" HorizontalOptions="Center" />
                             <Label Text="Point camera at your meal and tap Capture" FontSize="12" TextColor="{StaticResource Sage}" HorizontalOptions="Center" />
                         </VerticalStackLayout>

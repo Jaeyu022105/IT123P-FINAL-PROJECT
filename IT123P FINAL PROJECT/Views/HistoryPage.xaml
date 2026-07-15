@@ -44,7 +44,7 @@
                         <RoundRectangle CornerRadius="16" />
                     </Border.StrokeShape>
                     <VerticalStackLayout Spacing="15" VerticalOptions="Center" HorizontalOptions="Center">
-                        <Label Text="&#x1F4CA;" FontSize="50" HorizontalOptions="Center" />
+                        <Image Source="chart_icon.png" HeightRequest="50" WidthRequest="50" HorizontalOptions="Center" />
                         <Label Text="No History Yet" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalOptions="Center" />
                         <Label Text="Log meals for consecutive days to see your progress chart here." TextColor="{StaticResource TextMuted}" HorizontalTextAlignment="Center" HorizontalOptions="Center" MaxLines="2" />
                     </VerticalStackLayout>

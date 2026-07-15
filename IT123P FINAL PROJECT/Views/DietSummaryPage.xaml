@@ -122,7 +122,7 @@
                         <RoundRectangle CornerRadius="12" />
                     </Border.StrokeShape>
                     <VerticalStackLayout Spacing="10" HorizontalOptions="Center" VerticalOptions="Center" Padding="10">
-                        <Label Text="&#x1F37D;&#xFE0F;" FontSize="36" HorizontalOptions="Center" />
+                        <Image Source="bowl_icon.png" HeightRequest="36" WidthRequest="36" HorizontalOptions="Center" />
                         <Label Text="No meals logged today" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource TextMuted}" HorizontalOptions="Center" />
                         <Label Text="Tap 'Log New Food' below to start tracking." FontSize="12" TextColor="{StaticResource TextSubtle}" HorizontalOptions="Center" />
                     </VerticalStackLayout>
