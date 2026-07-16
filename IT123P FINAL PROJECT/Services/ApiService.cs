@@ -222,8 +222,19 @@ namespace IT123P_FINAL_PROJECT.Services
             Carbs = dto.CarbsG,
             Fat = dto.FatG,
             Grams = dto.Grams,
-            DateLogged = dto.LoggedAt
+            DateLogged = NormalizeToLocalTime(dto.LoggedAt)
         };
+
+        private static DateTime NormalizeToLocalTime(DateTime value)
+        {
+            if (value.Kind == DateTimeKind.Local)
+                return value;
+
+            if (value.Kind == DateTimeKind.Utc)
+                return value.ToLocalTime();
+
+            return DateTime.SpecifyKind(value, DateTimeKind.Utc).ToLocalTime();
+        }
 
         private class FoodSearchResult
         {

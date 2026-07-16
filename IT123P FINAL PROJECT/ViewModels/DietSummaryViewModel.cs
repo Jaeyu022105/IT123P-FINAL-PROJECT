@@ -23,6 +23,11 @@ namespace IT123P_FINAL_PROJECT.ViewModels
             {
                 await LoadDataAsync();
             });
+
+            MessagingCenter.Subscribe<PortionViewModel>(this, "FoodLogSaved", async (sender) =>
+            {
+                await LoadDataAsync();
+            });
         }
 
         [ObservableProperty] private DateTime _selectedDate;
@@ -65,7 +70,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
 
             // 3. Grab latest food logs from server and update cache
             var serverLogs = await _api.GetFoodLogsAsync(SelectedDate);
-            if (serverLogs.Count > 0 || IsOnline())
+            if (serverLogs.Count > 0)
                 await _db.RefreshLogsFromServerAsync(serverLogs, SelectedDate);
 
             // 4. Load from local database (acts as offline fallback)

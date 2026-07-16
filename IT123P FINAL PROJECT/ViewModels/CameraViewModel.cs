@@ -44,6 +44,17 @@ namespace IT123P_FINAL_PROJECT.ViewModels
 
         public ObservableCollection<FoodCandidate> Candidates { get; }
 
+        public void ResetSearchState()
+        {
+            IsBusy = false;
+            SearchQuery = string.Empty;
+            Candidates.Clear();
+            CapturedImageSource = null;
+            ShowCandidates = false;
+            ShowViewfinder = true;
+            StatusMessage = "Ready to analyze food";
+        }
+
         [RelayCommand]
         public async Task CapturePhotoAsync()
         {
