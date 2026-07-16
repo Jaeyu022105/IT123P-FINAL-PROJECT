@@ -18,7 +18,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
             LoggedMeals = [];
             SelectedDate = DateTime.Today;
 
-            // Subscribe to AI updates
+            // Listen for goal updates from chat
             MessagingCenter.Subscribe<ChatViewModel>(this, "DietGoalUpdated", async (sender) =>
             {
                 await LoadDataAsync();
@@ -29,7 +29,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
         [ObservableProperty] private double _calorieLimit;
         [ObservableProperty] private double _calorieUsed;
         [ObservableProperty] private double _calorieRemaining;
-        [ObservableProperty] private double _calorieProgress; // 0.0–1.0
+        [ObservableProperty] private double _calorieProgress; // 0.0 to 1.0 range
         [ObservableProperty] private double _proteinLimit;
         [ObservableProperty] private double _proteinUsed;
         [ObservableProperty] private double _proteinProgress;
@@ -49,7 +49,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
         {
             IsSyncing = true;
 
-            // ── 1. Sync Goal ──────────────────────────────────────────────────
+            // 1. Sync diet goals with server
             var serverGoal = await _api.GetDietGoalAsync();
             if (serverGoal != null)
                 await _db.RefreshGoalFromServerAsync(serverGoal);
@@ -60,15 +60,15 @@ namespace IT123P_FINAL_PROJECT.ViewModels
             CarbsLimit   = (CalorieLimit * (goal.CarbsPercentage / 100.0))  / 4.0;
             FatLimit     = (CalorieLimit * (goal.FatPercentage / 100.0))    / 9.0;
 
-            // ── 2. Upload pending unsynced local entries ───────────────────────
+            // 2. Push unsynced logs to server
             await _db.SyncPendingLogsAsync(_api);
 
-            // ── 3. Fetch authoritative list from backend & refresh local cache ─
+            // 3. Grab latest food logs from server and update cache
             var serverLogs = await _api.GetFoodLogsAsync(SelectedDate);
             if (serverLogs.Count > 0 || IsOnline())
                 await _db.RefreshLogsFromServerAsync(serverLogs, SelectedDate);
 
-            // ── 4. Read final list from local DB (works offline too) ──────────
+            // 4. Load from local database (acts as offline fallback)
             var meals = await _db.GetFoodLogEntriesAsync(SelectedDate);
 
             LoggedMeals.Clear();
@@ -104,11 +104,11 @@ namespace IT123P_FINAL_PROJECT.ViewModels
         {
             if (entry == null) return;
 
-            // Delete from backend if synced
+            // Remove from backend if already synced
             if (entry.IsSynced && entry.ServerId > 0)
                 await _api.DeleteFoodLogAsync(entry.ServerId);
 
-            // Always delete locally
+            // Make sure it's gone from local db
             await _db.DeleteFoodLogEntryAsync(entry);
             await LoadDataAsync();
         }
@@ -119,11 +119,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
             await Shell.Current.GoToAsync("///CameraPage");
         }
 
-        /// <summary>
-        /// Heuristic: if server returned a non-empty log list we consider the device online.
-        /// Used to decide whether to overwrite the local cache with an empty server response
-        /// (which could mean either no meals yet, or a network failure).
-        /// </summary>
+        // Helper to check if we are online
         private static bool IsOnline() => Connectivity.Current.NetworkAccess == NetworkAccess.Internet;
     }
 }

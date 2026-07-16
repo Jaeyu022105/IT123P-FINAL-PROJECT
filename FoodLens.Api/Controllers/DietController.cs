@@ -5,9 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FoodLens.Api.Controllers
 {
-    /// <summary>
-    /// Diet goal CRUD + comparison endpoint.
-    /// </summary>
+    // Diet goal configuration and comparison endpoints
     [ApiController]
     [Route("api/diet")]
     [Produces("application/json", "application/xml")]
@@ -18,7 +16,7 @@ namespace FoodLens.Api.Controllers
 
         public DietController(IDietGoalRepository repo) => _repo = repo;
 
-        /// <summary>GET /api/diet/goal</summary>
+        // GET /api/diet/goal
         [HttpGet("goal")]
         [ProducesResponseType(typeof(DietGoalDto), 200)]
         public async Task<IActionResult> GetGoal()
@@ -27,7 +25,7 @@ namespace FoodLens.Api.Controllers
             return Ok(MapToDto(goal));
         }
 
-        /// <summary>POST /api/diet/goal  — first-time setup</summary>
+        // POST /api/diet/goal: first-time setup
         [HttpPost("goal")]
         [ProducesResponseType(typeof(DietGoalDto), 201)]
         [ProducesResponseType(400)]
@@ -40,7 +38,7 @@ namespace FoodLens.Api.Controllers
             return CreatedAtAction(nameof(GetGoal), null, MapToDto(saved));
         }
 
-        /// <summary>PUT /api/diet/goal  — update existing goal</summary>
+        // PUT /api/diet/goal: update existing goal
         [HttpPut("goal")]
         [ProducesResponseType(typeof(DietGoalDto), 200)]
         [ProducesResponseType(400)]
@@ -53,7 +51,7 @@ namespace FoodLens.Api.Controllers
             return Ok(MapToDto(saved));
         }
 
-        /// <summary>DELETE /api/diet/goal  — reset goal to defaults</summary>
+        // DELETE /api/diet/goal: reset goal to defaults
         [HttpDelete("goal")]
         [ProducesResponseType(204)]
         public async Task<IActionResult> DeleteGoal()
@@ -62,10 +60,8 @@ namespace FoodLens.Api.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// GET /api/diet/compare?proposedCalories=450&todayLogged=1200
-        /// Pure comparison calculation — no DB write, no external call.
-        /// </summary>
+        // GET /api/diet/compare?proposedCalories=450&todayLogged=1200
+        // Pure comparison calculation with no DB write or external call.
         [HttpGet("compare")]
         [ProducesResponseType(typeof(DietCompareResultDto), 200)]
         public async Task<IActionResult> Compare(

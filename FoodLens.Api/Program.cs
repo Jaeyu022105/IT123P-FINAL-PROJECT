@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ── Database ────────────────────────────────────────────────────────────────
+// Database setup
 var dbProvider = builder.Configuration["DatabaseProvider"] ?? "sqlite";
 var connectionString = builder.Configuration.GetConnectionString("Default");
 if (string.IsNullOrWhiteSpace(connectionString))
@@ -25,7 +25,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlite(connectionString);
 });
 
-// ── USDA HttpClient ──────────────────────────────────────────────────────────
+// USDA Client setup
 var usdaBaseUrl = builder.Configuration["Usda:BaseUrl"] ?? "https://api.nal.usda.gov/fdc/v1/";
 builder.Services.AddHttpClient<IUsdaClient, UsdaClient>(client =>
 {
@@ -33,28 +33,28 @@ builder.Services.AddHttpClient<IUsdaClient, UsdaClient>(client =>
     client.Timeout = TimeSpan.FromSeconds(15);
 });
 
-// Register parameterless HttpClient for general outgoing requests (e.g. LogMeal API proxy)
+// Register standard client for outgoing requests
 builder.Services.AddHttpClient();
 
-// ── Repositories & Services ──────────────────────────────────────────────────
+// DI Repository registration
 builder.Services.AddScoped<IFoodLogRepository, FoodLogRepository>();
 builder.Services.AddScoped<IDietGoalRepository, DietGoalRepository>();
 
-// ── CoreWCF SOAP Service ─────────────────────────────────────────────────────
+// CoreWCF setup
 builder.Services.AddServiceModelServices();
 builder.Services.AddServiceModelMetadata();
 builder.Services.AddSingleton<IServiceBehavior, UseRequestHeadersForMetadataAddressBehavior>();
 builder.Services.AddScoped<DietExportService>();
 
-// ── MVC + XML formatter ──────────────────────────────────────────────────────
+// Controllers and XML formatting
 builder.Services.AddControllers()
-    .AddXmlSerializerFormatters();   // enables Accept: application/xml on all endpoints
+    .AddXmlSerializerFormatters();   // accept xml header support
 
-// ── OpenAPI / Swagger (built-in .NET 10) ────────────────────────────────────
+// Swagger OpenAPI
 builder.Services.AddOpenApi();
 
-// ── Rate Limiter (built-in ASP.NET Core 7+) ─────────────────────────────────
-// 60 requests per minute per IP — protects the free USDA quota from abuse.
+// Rate limiting
+// 60 requests limit per IP to guard USDA API quota
 builder.Services.AddRateLimiter(options =>
 {
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(ctx =>
@@ -70,26 +70,26 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode = 429;
 });
 
-// ── CORS (allow MAUI dev host) ───────────────────────────────────────────────
+// CORS configuration
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
     p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 
 var app = builder.Build();
 
-// ── Auto-migrate on startup (dev convenience) ────────────────────────────────
+// Auto migrate db on start
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 }
 
-// ── Middleware Pipeline (order matters — see 01-architecture.md) ─────────────
-app.UseMiddleware<ExceptionHandlingMiddleware>();   // 1. Outermost — catches everything
-app.UseMiddleware<RequestLoggingMiddleware>();      // 2. Log every request
-app.UseRateLimiter();                               // 3. Rate-limit before heavy work
+// Middleware pipeline setup
+app.UseMiddleware<ExceptionHandlingMiddleware>();   // Outermost middleware for catching exceptions
+app.UseMiddleware<RequestLoggingMiddleware>();      // Logging requests
+app.UseRateLimiter();                               // Rate limiter placement
 app.UseCors();
 
-// ── CoreWCF SOAP Endpoint ────────────────────────────────────────────────────
+// CoreWCF SOAP configuration
 app.UseServiceModel(serviceBuilder =>
 {
     serviceBuilder.AddService<DietExportService>();
@@ -103,7 +103,7 @@ app.UseServiceModel(serviceBuilder =>
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi(); // serves at /openapi/v1.json
+    app.MapOpenApi(); // openapi json endpoint
 }
 
 if (!app.Environment.IsDevelopment())

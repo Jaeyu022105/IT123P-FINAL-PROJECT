@@ -49,7 +49,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
         {
             try
             {
-                // 1. Request Camera Permission
+                // Need camera permission first
                 var cameraStatus = await Permissions.CheckStatusAsync<Permissions.Camera>();
                 if (cameraStatus != PermissionStatus.Granted)
                 {
@@ -63,7 +63,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
                     return;
                 }
 
-                // 2. Check if Capture is Supported
+                // Check if camera capture works on this device
                 if (!MediaPicker.Default.IsCaptureSupported)
                 {
                     StatusMessage = "Camera capture not supported. Opening photo gallery instead...";
@@ -72,7 +72,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
                     return;
                 }
 
-                // 3. Snap Photo
+                // Try to capture the photo
                 IsBusy = true;
                 ShowCandidates = false;
                 StatusMessage = "Launching camera...";
@@ -85,7 +85,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
                     return;
                 }
 
-                // 4. Save to cache as JPEG
+                // Save to local cache folder as JPEG
                 StatusMessage = "Processing captured image...";
                 string localFilePath = Path.Combine(FileSystem.CacheDirectory, Path.ChangeExtension(photo.FileName, ".jpg"));
                 using (Stream sourceStream = await photo.OpenReadAsync())
@@ -99,7 +99,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
 
                 CapturedImageSource = ImageSource.FromFile(localFilePath);
 
-                // 5. Run classification
+                // Send image to classifier
                 await ProcessRecognitionAsync(localFilePath);
             }
             catch (Exception ex)
@@ -127,7 +127,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
                     return;
                 }
 
-                // Save to cache as JPEG
+                // Save photo to local cache folder as JPEG
                 StatusMessage = "Processing selected image...";
                 string localFilePath = Path.Combine(FileSystem.CacheDirectory, Path.ChangeExtension(photo.FileName, ".jpg"));
                 using (Stream sourceStream = await photo.OpenReadAsync())
@@ -141,7 +141,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
 
                 CapturedImageSource = ImageSource.FromFile(localFilePath);
 
-                // Run classification
+                // Send picked image to classifier
                 await ProcessRecognitionAsync(localFilePath);
             }
             catch (Exception ex)
@@ -190,7 +190,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
 
             IsBusy = true;
             ShowCandidates = false;
-            StatusMessage = $"Searching USDA database for \u2018{SearchQuery}\u2019...";
+            StatusMessage = $"Searching USDA database for '{SearchQuery}'...";
 
             Candidates.Clear();
             var results = await _apiService.SearchFoodsAsync(SearchQuery.Trim());
@@ -201,11 +201,11 @@ namespace IT123P_FINAL_PROJECT.ViewModels
                     Candidates.Add(r);
 
                 ShowCandidates = true;
-                StatusMessage = $"{results.Count} result(s) found for \u2018{SearchQuery}\u2019:";
+                StatusMessage = $"{results.Count} result(s) found for '{SearchQuery}':";
             }
             else
             {
-                // Offline / backend unavailable fallback
+                // Offline or backend unavailable fallback
                 StatusMessage = "Nutrition service unavailable. Showing local fallback.";
                 string query = SearchQuery.Trim();
                 Candidates.Add(new FoodCandidate
@@ -229,7 +229,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
         {
             if (candidate == null) return;
 
-            // Navigate to PortionPage passing the selected candidate
+            // Go to PortionPage with candidate details
             var navigationParameter = new Dictionary<string, object>
             {
                 { "Candidate", candidate }

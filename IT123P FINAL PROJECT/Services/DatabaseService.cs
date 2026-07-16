@@ -23,7 +23,7 @@ namespace IT123P_FINAL_PROJECT.Services
             await _database.CreateTableAsync<FoodLogEntry>();
             await _database.CreateTableAsync<DietGoal>();
 
-            // Seed a default Diet Goal if none exists
+            // Set up a default goal if database is empty
             var existingGoal = await _database.Table<DietGoal>().FirstOrDefaultAsync();
             if (existingGoal == null)
             {
@@ -38,8 +38,7 @@ namespace IT123P_FINAL_PROJECT.Services
             }
         }
 
-        // ── Food Logs ─────────────────────────────────────────────────────────
-
+        // Food Logs database operations
         public async Task<List<FoodLogEntry>> GetFoodLogEntriesAsync(DateTime date)
         {
             await InitializeAsync();
@@ -73,8 +72,7 @@ namespace IT123P_FINAL_PROJECT.Services
             return await _database!.DeleteAsync(entry);
         }
 
-        // ── Diet Goal ─────────────────────────────────────────────────────────
-
+        // Diet Goal database operations
         public async Task<DietGoal> GetDietGoalAsync()
         {
             await InitializeAsync();
@@ -92,17 +90,11 @@ namespace IT123P_FINAL_PROJECT.Services
         public async Task<int> SaveDietGoalAsync(DietGoal goal)
         {
             await InitializeAsync();
-            goal.Id = 1; // Enforce single goal row
+            goal.Id = 1; // Keep it to a single active goal row
             return await _database!.UpdateAsync(goal);
         }
 
-        // ── Sync Helpers ──────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Uploads any locally-created entries that haven't been pushed to the backend yet.
-        /// Marks each as IsSynced = true and records the backend ServerId on success.
-        /// Call this before fetching the authoritative list from the server.
-        /// </summary>
+        // Server synchronization helpers
         public async Task SyncPendingLogsAsync(IApiService apiService)
         {
             await InitializeAsync();
@@ -122,16 +114,11 @@ namespace IT123P_FINAL_PROJECT.Services
             }
         }
 
-        /// <summary>
-        /// Replaces local food log entries for the given date with the authoritative
-        /// server list. Any locally-unsynced entries that survived SyncPendingLogsAsync
-        /// are preserved (they failed to upload, so we keep them for the next attempt).
-        /// </summary>
         public async Task RefreshLogsFromServerAsync(List<FoodLogEntry> serverEntries, DateTime date)
         {
             await InitializeAsync();
 
-            // Delete all locally-synced entries for the date (server is the source of truth)
+            // Clear local synced logs for this date since server is authority
             var start = date.Date;
             var end   = date.Date.AddDays(1);
             var local = await _database!.Table<FoodLogEntry>()
@@ -141,14 +128,11 @@ namespace IT123P_FINAL_PROJECT.Services
             foreach (var old in local)
                 await _database!.DeleteAsync(old);
 
-            // Insert fresh server records
+            // Insert server-side entries
             foreach (var entry in serverEntries)
                 await _database!.InsertAsync(entry);
         }
 
-        /// <summary>
-        /// Overwrites the local diet goal with data fetched from the server.
-        /// </summary>
         public async Task RefreshGoalFromServerAsync(DietGoal serverGoal)
         {
             await InitializeAsync();

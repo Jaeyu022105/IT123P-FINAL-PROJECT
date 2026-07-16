@@ -20,23 +20,23 @@ namespace IT123P_FINAL_PROJECT
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-            // Register services
+            // DI services
             builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
 
-            // Backend API service — points to local dev backend during development
+            // Base API url config for backend
             builder.Services.AddHttpClient<IApiService, ApiService>(client =>
             {
 #if ANDROID
-                // Android emulator loopback IP pointing to host machine's HTTP port
+                // Android emulator localhost translation
                 client.BaseAddress = new Uri("http://10.0.2.2:5000/");
 #else
-                // Change this URL when deploying to a real server
+                // Real server address goes here
                 client.BaseAddress = new Uri("https://localhost:5001/");
 #endif
                 client.Timeout = TimeSpan.FromSeconds(15);
             });
 
-            // Register ViewModels
+            // ViewModels
             builder.Services.AddTransient<DietSummaryViewModel>();
             builder.Services.AddTransient<CameraViewModel>();
             builder.Services.AddTransient<PortionViewModel>();
@@ -44,7 +44,7 @@ namespace IT123P_FINAL_PROJECT
             builder.Services.AddTransient<HistoryViewModel>();
             builder.Services.AddTransient<ChatViewModel>();
 
-            // Register Views
+            // Views
             builder.Services.AddTransient<DietSummaryPage>();
             builder.Services.AddTransient<CameraPage>();
             builder.Services.AddTransient<PortionPage>();

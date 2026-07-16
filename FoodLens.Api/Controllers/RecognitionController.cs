@@ -220,7 +220,7 @@ namespace FoodLens.Api.Controllers
                 .Select(word => word.Length > 0 ? char.ToUpper(word[0]) + word[1..].ToLower() : string.Empty));
         }
 
-        // ── Internal JSON Mapping Classes ──────────────────────────────────────
+        // Internal JSON mapping classes
         private class LogMealRecognitionResponse
         {
             [JsonPropertyName("recognition_results")]

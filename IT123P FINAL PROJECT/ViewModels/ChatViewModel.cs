@@ -21,7 +21,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
         {
             _api = api;
 
-            // Welcome message
+            // Set up initial greeting
             Messages.Add(new ChatMessageDisplay
             {
                 Role = "assistant",
@@ -43,7 +43,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
             var userText = InputText.Trim();
             InputText = string.Empty;
 
-            // Add user message
+            // Add user message to display
             Messages.Add(new ChatMessageDisplay
             {
                 Role = "user",
@@ -56,7 +56,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
 
             try
             {
-                // Prepare message history to send to API
+                // Map history to format needed by API
                 var history = new List<ChatMessageDto>();
                 foreach (var msg in Messages)
                 {
@@ -67,7 +67,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
                     });
                 }
 
-                // Send request
+                // Post message to backend
                 var response = await _api.SendChatMessageAsync(history);
                 if (response != null)
                 {
@@ -141,7 +141,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
                         IsUser = false
                     });
 
-                    // Broadcast message to refresh dashboard
+                    // Notify home dashboard to update
                     MessagingCenter.Send(this, "DietGoalUpdated");
                 }
             }
@@ -177,7 +177,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
             IsUser ? Microsoft.Maui.Controls.LayoutOptions.End : Microsoft.Maui.Controls.LayoutOptions.Start;
 
         public string BubbleColor => 
-            IsUser ? "#1B63C1" : "#2E2E3A"; // Classic premium Blue for user, Dark Grey for AI
+            IsUser ? "#1B63C1" : "#2E2E3A"; // Blue for user bubble, dark gray for AI bubble
             
         public Microsoft.Maui.Graphics.Color TextColor => 
             IsUser ? Microsoft.Maui.Graphics.Colors.White : Microsoft.Maui.Graphics.Colors.White;

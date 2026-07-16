@@ -6,17 +6,17 @@ namespace IT123P_FINAL_PROJECT.Services
     {
         Task InitializeAsync();
 
-        // ── Food Logs ─────────────────────────────────────────────────────────
+        // Food Logs local operations
         Task<List<FoodLogEntry>> GetFoodLogEntriesAsync(DateTime date);
         Task<FoodLogEntry?> GetFoodLogEntryAsync(int id);
         Task<int> SaveFoodLogEntryAsync(FoodLogEntry entry);
         Task<int> DeleteFoodLogEntryAsync(FoodLogEntry entry);
 
-        // ── Diet Goal ─────────────────────────────────────────────────────────
+        // Diet Goal local operations
         Task<DietGoal> GetDietGoalAsync();
         Task<int> SaveDietGoalAsync(DietGoal goal);
 
-        // ── Sync Helpers ──────────────────────────────────────────────────────
+        // Synchronization helpers
         Task SyncPendingLogsAsync(IApiService apiService);
         Task RefreshLogsFromServerAsync(List<FoodLogEntry> serverEntries, DateTime date);
         Task RefreshGoalFromServerAsync(DietGoal serverGoal);

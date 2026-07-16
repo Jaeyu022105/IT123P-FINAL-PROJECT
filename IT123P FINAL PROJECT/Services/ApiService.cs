@@ -5,12 +5,8 @@ using IT123P_FINAL_PROJECT.Models;
 
 namespace IT123P_FINAL_PROJECT.Services
 {
-    /// <summary>
-    /// Calls the FoodLens backend REST API.
-    /// Base URL defaults to https://localhost:5001 for local development.
-    /// All methods are offline-safe — they catch every exception and return
-    /// sensible defaults so the app remains usable without a network connection.
-    /// </summary>
+    // Communicates with the FoodLens backend API.
+    // Falls back to safe default operations when connection is unavailable.
     public class ApiService : IApiService
     {
         private readonly HttpClient _http;
@@ -18,8 +14,7 @@ namespace IT123P_FINAL_PROJECT.Services
 
         public ApiService(HttpClient http) => _http = http;
 
-        // ── Nutrition ──────────────────────────────────────────────────────────
-
+        // Nutrition lookup and search
         public async Task<List<FoodCandidate>> SearchFoodsAsync(string query, int limit = 10)
         {
             try
@@ -72,8 +67,7 @@ namespace IT123P_FINAL_PROJECT.Services
             catch { return []; }
         }
 
-        // ── Diet Goal ─────────────────────────────────────────────────────────
-
+        // Diet Goal configuration
         public async Task<DietGoal?> GetDietGoalAsync()
         {
             try
@@ -107,14 +101,13 @@ namespace IT123P_FINAL_PROJECT.Services
                 };
                 var json = JsonSerializer.Serialize(dto);
                 var response = await _http.PutAsync("api/diet/goal",
-                    new StringContent(json, Encoding.UTF8, "application/json"));
+                     new StringContent(json, Encoding.UTF8, "application/json"));
                 return response.IsSuccessStatusCode;
             }
             catch { return false; }
         }
 
-        // ── Food Logs ─────────────────────────────────────────────────────────
-
+        // Food logging endpoints
         public async Task<List<FoodLogEntry>> GetFoodLogsAsync(DateTime date)
         {
             try
@@ -162,8 +155,7 @@ namespace IT123P_FINAL_PROJECT.Services
             catch { return false; }
         }
 
-        // ── Diet Comparison ───────────────────────────────────────────────────
-
+        // Diet Comparison API helper
         public async Task<DietCompareResult?> CompareDietAsync(double proposedCalories, double todayLogged)
         {
             try
@@ -219,8 +211,7 @@ namespace IT123P_FINAL_PROJECT.Services
             catch { return null; }
         }
 
-        // ── Internal DTOs (mirror backend shapes) ─────────────────────────────
-
+        // Internal DTO mapping helpers
         private static FoodLogEntry MapFromDto(FoodLogDto dto) => new()
         {
             ServerId = dto.Id,

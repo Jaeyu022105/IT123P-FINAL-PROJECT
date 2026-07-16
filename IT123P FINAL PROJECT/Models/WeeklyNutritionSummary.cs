@@ -1,6 +1,6 @@
 namespace IT123P_FINAL_PROJECT.Models
 {
-    /// <summary>Aggregated nutrition totals for a single calendar day.</summary>
+    // Daily summary totals
     public record DayNutritionTotal(
         DateTime Date,
         double Calories,
@@ -9,12 +9,12 @@ namespace IT123P_FINAL_PROJECT.Models
         double Fat,
         int MealCount)
     {
-        public string DayLabel => Date.ToString("ddd");          // "Mon", "Tue" …
-        public string DateLabel => Date.ToString("MMM d");       // "Jul 14"
+        public string DayLabel => Date.ToString("ddd");          // Mon, Tue, etc.
+        public string DateLabel => Date.ToString("MMM d");       // Jul 14 format
         public bool IsToday => Date.Date == DateTime.Today;
     }
 
-    /// <summary>Rolling 7-day window of per-day totals, with derived stats.</summary>
+    // 7-day window details
     public class WeeklyNutritionSummary
     {
         public List<DayNutritionTotal> Days { get; }
@@ -42,11 +42,11 @@ namespace IT123P_FINAL_PROJECT.Models
         public DayNutritionTotal? BestDay  => Days.Where(d => d.Calories > 0).MaxBy(d => d.Calories);
         public DayNutritionTotal? WorstDay => Days.Where(d => d.Calories > 0).MinBy(d => d.Calories);
 
-        /// <summary>0.0–1.0 normalized height for bar chart rendering.</summary>
+        // Height range from 0 to 1 for rendering the bar chart
         public double NormalizedHeight(DayNutritionTotal day)
             => MaxCalories > 0 ? Math.Clamp(day.Calories / MaxCalories, 0, 1) : 0;
 
-        /// <summary>Macro split as fractions (0–1) summing to 1.</summary>
+        // Macro split fractions from 0 to 1
         public (double ProteinFrac, double CarbsFrac, double FatFrac) MacroSplit()
         {
             double totalMacroKcal = TotalProtein * 4 + TotalCarbs * 4 + TotalFat * 9;

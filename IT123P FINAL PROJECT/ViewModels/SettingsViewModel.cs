@@ -46,11 +46,11 @@ namespace IT123P_FINAL_PROJECT.ViewModels
         [RelayCommand]
         public async Task LoadGoalAsync()
         {
-            // Try backend first; fall back to local cache
+            // Check backend first, otherwise fall back to local db
             var serverGoal = await _api.GetDietGoalAsync();
             if (serverGoal != null)
             {
-                // Update local cache to keep it consistent
+                // Keep local db in sync with server
                 await _db.RefreshGoalFromServerAsync(serverGoal);
                 CalorieLimit       = serverGoal.DailyCalorieLimit;
                 ProteinPercentage  = serverGoal.ProteinPercentage;
@@ -59,7 +59,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
             }
             else
             {
-                // Offline — read from local SQLite cache
+                // Offline mode: load from SQLite cache
                 var local = await _db.GetDietGoalAsync();
                 CalorieLimit       = local.DailyCalorieLimit;
                 ProteinPercentage  = local.ProteinPercentage;
@@ -85,12 +85,24 @@ namespace IT123P_FINAL_PROJECT.ViewModels
                     isCurrent = IsLowCarbSelected; break;
             }
 
-            if (isCurrent) return;
+            string name = preset.ToLower() switch
+            {
+                "balanced" => "Balanced",
+                "highprotein" => "High Protein",
+                "lowcarb" => "Low Carb",
+                _ => preset
+            };
 
-            // Prompt user before overriding
+            if (isCurrent)
+            {
+                await Shell.Current.DisplayAlert("Preset Active", $"The {name} preset is already applied.", "OK");
+                return;
+            }
+
+            // Ask user before we override their numbers
             bool confirm = await Shell.Current.DisplayAlert(
-                "Override Macros?",
-                "Are you sure you want to override your current macronutrient targets with this preset?",
+                "Apply Preset?",
+                $"This will override your current settings and save the {name} targets immediately. Do you want to continue?",
                 "Yes",
                 "No");
 
@@ -106,6 +118,11 @@ namespace IT123P_FINAL_PROJECT.ViewModels
                     ProteinPercentage = 30; CarbsPercentage = 20; FatPercentage = 50; break;
             }
             ValidationMessage = string.Empty;
+
+            // Automatically save settings
+            await SaveGoalAsync();
+
+            await Shell.Current.DisplayAlert("Preset Applied", $"The {name} preset has been successfully applied and saved.", "OK");
         }
 
         [RelayCommand]
@@ -133,10 +150,10 @@ namespace IT123P_FINAL_PROJECT.ViewModels
                 FatPercentage = FatPercentage
             };
 
-            // Save locally first (always succeeds)
+            // Save to local cache first
             await _db.SaveDietGoalAsync(goal);
 
-            // Push to backend (best-effort — failure is silent, local cache remains)
+            // Try to sync with server, but ignore if offline
             await _api.SaveDietGoalAsync(goal);
 
             ValidationMessage = string.Empty;
@@ -156,7 +173,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
 
             try
             {
-                // Export last 7 days of logs (from 7 days ago to today)
+                // Grab the last 7 days of logs
                 var fromDate = DateTime.Today.AddDays(-7);
                 var toDate = DateTime.Today;
 
@@ -172,7 +189,7 @@ namespace IT123P_FINAL_PROJECT.ViewModels
                     ExportStatus = "Export failed.";
                     var errMsg = result.Substring(6).Trim();
 
-                    // Parse JSON error response if possible
+                    // Try parsing the error JSON
                     string cleanMsg = errMsg;
                     try
                     {
@@ -190,8 +207,8 @@ namespace IT123P_FINAL_PROJECT.ViewModels
                 {
                     ExportStatus = "Export succeeded!";
 
-                    // Display success and let user view the raw WCF SOAP XML payload
-                    await Shell.Current.DisplayAlert("Export Succeeded (Phase 5)", 
+                    // Show them the raw WCF SOAP XML just in case
+                    await Shell.Current.DisplayAlert("Export Succeeded", 
                         $"Successfully exported diet logs to the legacy system!\n\nRaw SOAP-XML:\n\n{result}", "OK");
                 }
             }
